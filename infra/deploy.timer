@@ -1,0 +1,10 @@
+[Unit]
+Description=poll for bidwatch main updates
+
+[Timer]
+OnBootSec=3min
+OnUnitActiveSec=10min
+Unit=bidwatch-deploy.service
+
+[Install]
+WantedBy=timers.target

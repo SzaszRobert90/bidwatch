@@ -59,6 +59,13 @@ npm run report
 npx tsx scripts/record-fixtures.ts   # refresh live fixtures (opens Chrome)
 ```
 
+## Deployment
+
+GitHub runners cannot reach the LAN, so the homelab LXC runs a **pull-deploy timer**
+(`infra/deploy.timer`): every 10 min it pulls main and rebuilds the live stack.
+The GH `environment: prod` gate becomes active once the runner can join the tailnet
+(Tailscale auth key + SSH workflow). Until then, releases to prod = merges to main.
+
 ## Environments
 
 - `dev` (push to main): CI → tests → deploy to homelab with `BIDWATCH_MODE=fixture`.

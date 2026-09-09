@@ -28,11 +28,12 @@ jobs:
       - uses: actions/checkout@v4
       - name: start minio
         run: |
-          docker run -d --name minio -p 9000:9000 \
+          docker network create bidwatch-ci
+          docker run -d --name minio --network bidwatch-ci -p 9000:9000 \
             -e MINIO_ROOT_USER=bidwatchlocal -e MINIO_ROOT_PASSWORD=bidwatchlocal-secret \
             minio/minio:latest server /data
-          docker run --rm --network container:minio minio/mc:latest \
-            sh -c "until mc alias set l http://localhost:9000 bidwatchlocal bidwatchlocal-secret >/dev/null 2>&1; do sleep 1; done; \
+          docker run --rm --network bidwatch-ci minio/mc:latest \
+            sh -c "until mc alias set l http://minio:9000 bidwatchlocal bidwatchlocal-secret >/dev/null 2>&1; do sleep 1; done; \
                    mc mb -p l/bidwatch-raw l/bidwatch-curated l/bidwatch-reports"
       - name: start elasticmq
         run: |
