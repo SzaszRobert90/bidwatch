@@ -1,0 +1,20 @@
+{
+  "https://www.bing.com/aclick?ld=e8A1ZyTEST&u=aHR0cDovL2NvdXBvbnMtZGVhbHMuY29tL25vcmR2cG4%2Fc3NjaWQ9YWJjMTIz&nta=0": {
+    "status": 200,
+    "hops": [
+      { "url": "https://www.bing.com/aclick?ld=e8A1ZyTEST&u=aHR0cDovL2NvdXBvbnMtZGVhbHMuY29tL25vcmR2cG4%2Fc3NjaWQ9YWJjMTIz&nta=0", "status": 302 },
+      { "url": "http://coupons-deals.com/nordvpn?sscid=abc123", "status": 200 }
+    ],
+    "finalUrl": "http://coupons-deals.com/nordvpn?sscid=abc123",
+    "body": "<html><body>NordVPN coupon codes, exclusive discounts. We may earn a commission.</body></html>"
+  },
+  "https://www.bing.com/aclick?ld=e8B2ZxTEST&u=aHR0cDovL25vcmR2cG4uY29tL3NwZWNpYWw.&nta=0": {
+    "status": 200,
+    "hops": [
+      { "url": "https://www.bing.com/aclick?ld=e8B2ZxTEST&u=aHR0cDovL25vcmR2cG4uY29tL3NwZWNpYWw.&nta=0", "status": 302 },
+      { "url": "https://nordvpn.com/special/", "status": 200 }
+    ],
+    "finalUrl": "https://nordvpn.com/special/",
+    "body": "<html><body>Official NordVPN offer page.</body></html>"
+  }
+}

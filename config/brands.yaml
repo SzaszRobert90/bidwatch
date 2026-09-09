@@ -1,0 +1,32 @@
+# Watched brands. geo = observation vantage (home IP market), Bing localizes by IP.
+# Ad availability fluctuates per auction/session — zero-ad runs are valid data.
+# keywords are Bing queries; {brand} expands to the brand key.
+brands:
+  - key: nike
+    domain: nike.com
+    geo: hu
+    keywords: ["nike air force 1"]
+  - key: nordvpn
+    domain: nordvpn.com
+    geo: hu
+    keywords: ["{brand} coupon"]
+  - key: notino
+    domain: notino.ro
+    geo: hu
+    keywords: ["{brand}"]
+  - key: booking
+    domain: booking.com
+    geo: hu
+    keywords: ["{brand} promo"]
+  - key: expressvpn
+    domain: expressvpn.com
+    geo: hu
+    keywords: ["{brand} coupon"]
+  - key: hellofresh
+    domain: hellofresh.com
+    geo: hu
+    keywords: ["{brand} promo code"]
+  - key: wix
+    domain: wix.com
+    geo: hu
+    keywords: ["{brand} pricing"]

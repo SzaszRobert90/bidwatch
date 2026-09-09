@@ -1,0 +1,125 @@
+# bidwatch homelab stack — AWS-shaped contracts on MinIO/ElasticMQ.
+# dev profile replays committed fixtures (never touches Bing); prod scrapes live.
+name: bidwatch
+
+x-worker-env: &worker-env
+  AWS_REGION: us-east-1
+  AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID:-bidwatchlocal}
+  AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY:-bidwatchlocal-secret}
+  BIDWATCH_QUEUE_URL: http://elasticmq:9324/queue/bidwatch-main
+  BIDWATCH_DLQ_URL: http://elasticmq:9324/queue/bidwatch-dlq
+  BIDWATCH_SQS_ENDPOINT: http://elasticmq:9324
+  BIDWATCH_S3_ENDPOINT: http://minio:9000
+  BIDWATCH_RAW_BUCKET: bidwatch-raw
+  BIDWATCH_CURATED_BUCKET: bidwatch-curated
+  BIDWATCH_REPORTS_BUCKET: bidwatch-reports
+
+services:
+  minio:
+    image: minio/minio:latest
+    command: server /data --console-address ":9001"
+    ports: ["9000:9000"]
+    volumes: ["minio-data:/data"]
+    environment:
+      MINIO_ROOT_USER: bidwatchlocal
+      MINIO_ROOT_PASSWORD: ${AWS_SECRET_ACCESS_KEY:-bidwatchlocal-secret}
+    healthcheck:
+      test: ["CMD", "mc", "ready", "local"]
+      interval: 5s
+      timeout: 3s
+      retries: 12
+
+  minio-init:
+    image: minio/mc:latest
+    depends_on:
+      minio:
+        condition: service_healthy
+    entrypoint: >
+      /bin/sh -c "
+      mc alias set local http://minio:9000 $${AWS_ACCESS_KEY_ID:-bidwatchlocal} $${AWS_SECRET_ACCESS_KEY:-bidwatchlocal-secret} &&
+      mc mb --ignore-existing local/bidwatch-raw &&
+      mc mb --ignore-existing local/bidwatch-curated &&
+      mc mb --ignore-existing local/bidwatch-reports"
+    environment:
+      AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID:-bidwatchlocal}
+      AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY:-bidwatchlocal-secret}
+
+  elasticmq:
+    image: softwaremill/elasticmq-native:latest
+    ports: ["9324:9324"]
+    volumes: ["./elasticmq.conf:/opt/elasticmq.conf:ro"]
+
+  feeder:
+    build:
+      context: ..
+      dockerfile: infra/Dockerfile
+    image: bidwatch-worker:local
+    command: ["node", "dist/apps/feeder/main.js"]
+    environment:
+      <<: *worker-env
+      BIDWATCH_FEEDER_CRON: ${BIDWATCH_FEEDER_CRON:-0 6 * * *}
+    restart: unless-stopped
+    profiles: ["prod"]
+
+  worker:
+    image: bidwatch-worker:local
+    build:
+      context: ..
+      dockerfile: infra/Dockerfile
+    command: ["node", "dist/apps/worker/main.js"]
+    environment:
+      <<: *worker-env
+      BIDWATCH_MODE: live
+      BIDWATCH_SERP_ADAPTER: playwright
+      BIDWATCH_HEADLESS: "false"
+      BIDWATCH_BROWSER_CHANNEL: ""
+      BIDWATCH_PROFILE_DIR: /data/profile-bing
+      BIDWATCH_POLITENESS_MS: "1500"
+      DISPLAY: ":99"
+    volumes: ["browser-profile:/data"]
+    # headful chromium under xvfb inside the container
+    entrypoint: ["/usr/local/bin/xvfb-run", "-a", "--server-args=-screen 0 1280x800x24"]
+    restart: unless-stopped
+    shm_size: 1gb
+    depends_on:
+      elasticmq:
+        condition: service_started
+    profiles: ["prod"]
+
+  # dev: fixture replay, no live scraping — safe to run any time
+  feeder-dev:
+    image: bidwatch-worker:local
+    build:
+      context: ..
+      dockerfile: infra/Dockerfile
+    command: ["node", "dist/apps/feeder/main.js", "--once"]
+    environment:
+      <<: *worker-env
+      BIDWATCH_MODE: fixture
+      BIDWATCH_FIXTURES_DIR: /app/fixtures
+    profiles: ["dev"]
+
+  worker-dev:
+    image: bidwatch-worker:local
+    command: ["node", "dist/apps/worker/main.js", "--once"]
+    environment:
+      <<: *worker-env
+      BIDWATCH_MODE: fixture
+      BIDWATCH_FIXTURES_DIR: /app/fixtures
+      BIDWATCH_POLITENESS_MS: "0"
+    depends_on:
+      elasticmq:
+        condition: service_started
+    profiles: ["dev"]
+
+  report:
+    image: bidwatch-worker:local
+    command: ["node", "dist/apps/report/main.js"]
+    environment:
+      <<: *worker-env
+    restart: unless-stopped
+    profiles: ["prod"]
+
+volumes:
+  minio-data:
+  browser-profile:

@@ -1,0 +1,43 @@
+{
+  "name": "bidwatch",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Brand-bidding monitor with affiliate attribution. Bing-first, AWS-shaped, homelab-hosted.",
+  "engines": {
+    "node": ">=24"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:integration": "vitest run --config vitest.integration.config.ts",
+    "lint": "eslint .",
+    "worker": "tsx src/apps/worker/main.ts",
+    "feeder": "tsx src/apps/feeder/main.ts",
+    "report": "tsx src/apps/report/main.ts",
+    "prospects": "tsx src/apps/prospect-builder/main.ts"
+  },
+  "dependencies": {
+    "@aws-sdk/client-s3": "^3.1128.0",
+    "@aws-sdk/client-sqs": "^3.1128.0",
+    "@duckdb/node-api": "^1.5.5-r.4",
+    "cheerio": "^1.2.0",
+    "node-cron": "^4.6.0",
+    "pino": "^10.3.1",
+    "playwright": "^1.63.0",
+    "undici": "^8.10.2",
+    "yaml": "^2.9.0",
+    "zod": "^4.5.4"
+  },
+  "devDependencies": {
+    "@types/node": "^26.5.0",
+    "@types/node-cron": "^3.0.11",
+    "eslint": "^10.10.0",
+    "tsx": "^4.23.13",
+    "typescript": "^6.0.3",
+    "typescript-eslint": "^8.70.0",
+    "vitest": "^5.0.0"
+  }
+}

@@ -1,0 +1,12 @@
+node_modules/
+dist/
+*.log
+.env
+.env.*
+!.env.example
+data/
+graft/
+.zvec-grep/
+fixtures/local/
+.profile-bing/
+fixtures/probe-*.html

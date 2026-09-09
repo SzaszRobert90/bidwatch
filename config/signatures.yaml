@@ -1,0 +1,87 @@
+# Affiliate-network signature database — data, not code.
+# A landing page counts as an affiliate violation when any signature matches
+# the redirect chain, the final URL, or the page body.
+# - params: query parameter names (valuePattern is an optional regex on the value)
+# - domains: tracker/redirect domains, suffix-matched against chain + final URL hosts
+# - disclosure: case-insensitive regexes run against the page body
+networks:
+  - network: impact
+    params:
+      - { name: irgwc }
+      - { name: ir.pid }
+      - { name: ircid }
+    domains: [impact.com, pxf.io, sjv.io]
+
+  - network: shareasale
+    params:
+      - { name: sscid, valuePattern: "^[A-Za-z0-9_-]+$" }
+      - { name: afftrack }
+    domains: [shareasale.com, shareasale-analytics.com]
+
+  - network: awin
+    params:
+      - { name: awc }
+      - { name: awinaffid }
+    domains: [awin1.com, awin.com, zenaps.com]
+
+  - network: cj
+    params:
+      - { name: cid, valuePattern: "^\\d{6,}$" }
+      - { name: afsrc }
+    domains: [cj.com, qksrv.net, kqzyfj.com, tkqlhce.com, dpbolvw.net, jdoqocy.com, anrdoezrs.net, emjcd.com]
+
+  - network: partnerize
+    params:
+      - { name: pub }
+    domains: [prf.hn, partnerize.com]
+
+  - network: rakuten
+    params:
+      - { name: ranMID }
+      - { name: ranEAID }
+      - { name: ranSiteID }
+    domains: [linksynergy.com, rakuten.com]
+
+  - network: clickbank
+    params:
+      - { name: hop, valuePattern: "^[A-Za-z0-9_-]+$" }
+    domains: [clickbank.net]
+
+  - network: refersion
+    params:
+      - { name: rfsn }
+    domains: [refersion.com]
+
+  - network: everflow
+    params:
+      - { name: _ef }
+      - { name: u1 }
+
+  - network: flexoffers
+    domains: [flexlinks.com, flexoffers.com]
+
+  - network: skimlinks
+    domains: [redirectingat.com, skimresources.com]
+
+  - network: admitad
+    domains: [admitad.com, ads.admitad.com]
+
+  - network: amazon-associates
+    params:
+      - { name: tag, valuePattern: "^[a-z0-9-]{3,20}$" }
+
+  - network: tradetracker
+    domains: [tradetracker.net, tradetracker.com]
+
+  - network: webgains
+    domains: [webgains.com]
+    params:
+      - { name: wgcampaignid }
+
+  - network: disclosure-only
+    params: []
+    domains: []
+    disclosure:
+      - "we (?:may )?(?:earn|receive) (?:a )?commission"
+      - "affiliate (?:link|disclosure|relationship)"
+      - "paid partnership"

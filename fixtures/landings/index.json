@@ -1,0 +1,92 @@
+{
+ "https://www.bing.com/aclick?ld=e8LuGjj6mbh50Bp_TRpuQrdzVUCUy4XJEpP0Ubwg30u_h01GOqYefuiUXnV-rHgh7Ha57GlfGaJ1bKrFrSTp65O2j4Wy15u4yxHKGVvlEriDUco_KCI_-FXEKFeIDFmSVdM6ayJR23UjiUQC_WCod_vQ6serHEHSKaCA09hnf7HtByhOC6az-xNW-EqdCMp49BCkHyVXv7IbCzGrdd3sRBsRpa-sA&u=aHR0cHMlM2ElMmYlMmZ3d3cuZ2xhbWkucm8lMmZuaWtlLWFpci1mb3JjZS0xJTJmJTNmdGhwJTNkbWFvJTI2bXNjbGtpZCUzZDBhYTVjYzc0Njc2OTFiZGQ4NTU5YTZkNTE0ZmQ5MTAzJTI2dXRtX3NvdXJjZSUzZGJpbmclMjZ1dG1fbWVkaXVtJTNkY3BjJTI2dXRtX2NhbXBhaWduJTNkU0NILUJSTkQlMjUyMEVkaXRpb25zJTI1MjBJTS1CSU5HJTI2dXRtX3Rlcm0lM2RuaWtlJTI1MjBhaXIlMjUyMGZvcmNlJTI1MjAxJTI2dXRtX2NvbnRlbnQlM2ROaWtlJTI1MjBBaXIlMjUyMEZvcmNlJTI1MjAx&rlid=0aa5cc7467691bdd8559a6d514fd9103&ntb=1": {
+  "status": 200,
+  "hops": [
+   {
+    "url": "https://www.bing.com/aclick?ld=e8LuGjj6mbh50Bp_TRpuQrdzVUCUy4XJEpP0Ubwg30u_h01GOqYefuiUXnV-rHgh7Ha57GlfGaJ1bKrFrSTp65O2j4Wy15u4yxHKGVvlEriDUco_KCI_-FXEKFeIDFmSVdM6ayJR23UjiUQC_WCod_vQ6serHEHSKaCA09hnf7HtByhOC6az-xNW-EqdCMp49BCkHyVXv7IbCzGrdd3sRBsRpa-sA&u=aHR0cHMlM2ElMmYlMmZ3d3cuZ2xhbWkucm8lMmZuaWtlLWFpci1mb3JjZS0xJTJmJTNmdGhwJTNkbWFvJTI2bXNjbGtpZCUzZDBhYTVjYzc0Njc2OTFiZGQ4NTU5YTZkNTE0ZmQ5MTAzJTI2dXRtX3NvdXJjZSUzZGJpbmclMjZ1dG1fbWVkaXVtJTNkY3BjJTI2dXRtX2NhbXBhaWduJTNkU0NILUJSTkQlMjUyMEVkaXRpb25zJTI1MjBJTS1CSU5HJTI2dXRtX3Rlcm0lM2RuaWtlJTI1MjBhaXIlMjUyMGZvcmNlJTI1MjAxJTI2dXRtX2NvbnRlbnQlM2ROaWtlJTI1MjBBaXIlMjUyMEZvcmNlJTI1MjAx&rlid=0aa5cc7467691bdd8559a6d514fd9103&ntb=1",
+    "status": 302
+   },
+   {
+    "url": "https://www.glami.ro/branduri/nike/?utm_source=bing&utm_medium=cpc",
+    "status": 200
+   }
+  ],
+  "finalUrl": "https://www.glami.ro/branduri/nike/?utm_source=bing&utm_medium=cpc",
+  "body": "<html><body><h1>Nike pe GLAMI</h1><p>GLAMI iti arata oferte. We may earn a commission from partner shops.</p></body></html>"
+ },
+ "https://www.bing.com/aclick?ld=e8yFKgDp99o4hj4G5-i4YqWTVUCUxl6Wy8Zp8JIZnk18LkuKJSgyiHHAIZWewJDnizb29YgMzZPZ1OTinwRsYzux4CMudBOsRWNHGExrLjc8gbvDMvRmw74wl7J8iBgwh4MgUvP-_0JbNSOM6cxxk9TI2eNZ2tcxvNUtzcLimgr-PwBV9cM0UowV3pmxkWXXKG_oNk3hOmUdL4Bd6-ixLxSqmgvDE&u=aHR0cHMlM2ElMmYlMmZ3d3cubHlzdC5jb20lMmZkZXNpZ25lciUyZm5pa2UlMmYlM2Zwcm9kdWN0X3R5cGUlM2RTaG9lcyUyNmF0Y19jYW1wYWlnbiUzZEVVY2VudHJhbC1lbi1QYWlkLUJpbmctU2VhcmNoJTI2YXRjX2NvbnRlbnQlM2RFVWNlbnRyYWwtTm9uQ29yZSUyNmF0Y19jb3VudHJ5JTNkRVUlMjZhdGNfZ3JvdXBpbmclM2RzZWFyY2glMjZhdGNfbWVkaXVtJTNkY3BjJTI2YXRjX3NvdXJjZSUzZGJpbmclMjZhdGNfdGVybSUzZE5pa2UlMjUyMFNob2VzJTI2c2VtX2lkJTNkJTI2YXRjX2xhYmVsJTNkJTI2bXNjbGtpZCUzZDNmNTVhNjg5MWE1MDE4YjI5MzU4Y2MyODY5YzRkYjM3JTI2dXRtX3NvdXJjZSUzZGJpbmclMjZ1dG1fbWVkaXVtJTNkY3BjJTI2dXRtX2NhbXBhaWduJTNkRVVjZW50cmFsLWVuLVBhaWQtQmluZy1TZWFyY2glMjZ1dG1fdGVybSUzZE5pa2UlMjUyMFNob2VzJTI2dXRtX2NvbnRlbnQlM2RFVWNlbnRyYWwtTm9uQ29yZQ&rlid=3f55a6891a5018b29358cc2869c4db37&ntb=1": {
+  "status": 200,
+  "hops": [
+   {
+    "url": "https://www.bing.com/aclick?ld=e8yFKgDp99o4hj4G5-i4YqWTVUCUxl6Wy8Zp8JIZnk18LkuKJSgyiHHAIZWewJDnizb29YgMzZPZ1OTinwRsYzux4CMudBOsRWNHGExrLjc8gbvDMvRmw74wl7J8iBgwh4MgUvP-_0JbNSOM6cxxk9TI2eNZ2tcxvNUtzcLimgr-PwBV9cM0UowV3pmxkWXXKG_oNk3hOmUdL4Bd6-ixLxSqmgvDE&u=aHR0cHMlM2ElMmYlMmZ3d3cubHlzdC5jb20lMmZkZXNpZ25lciUyZm5pa2UlMmYlM2Zwcm9kdWN0X3R5cGUlM2RTaG9lcyUyNmF0Y19jYW1wYWlnbiUzZEVVY2VudHJhbC1lbi1QYWlkLUJpbmctU2VhcmNoJTI2YXRjX2NvbnRlbnQlM2RFVWNlbnRyYWwtTm9uQ29yZSUyNmF0Y19jb3VudHJ5JTNkRVUlMjZhdGNfZ3JvdXBpbmclM2RzZWFyY2glMjZhdGNfbWVkaXVtJTNkY3BjJTI2YXRjX3NvdXJjZSUzZGJpbmclMjZhdGNfdGVybSUzZE5pa2UlMjUyMFNob2VzJTI2c2VtX2lkJTNkJTI2YXRjX2xhYmVsJTNkJTI2bXNjbGtpZCUzZDNmNTVhNjg5MWE1MDE4YjI5MzU4Y2MyODY5YzRkYjM3JTI2dXRtX3NvdXJjZSUzZGJpbmclMjZ1dG1fbWVkaXVtJTNkY3BjJTI2dXRtX2NhbXBhaWduJTNkRVVjZW50cmFsLWVuLVBhaWQtQmluZy1TZWFyY2glMjZ1dG1fdGVybSUzZE5pa2UlMjUyMFNob2VzJTI2dXRtX2NvbnRlbnQlM2RFVWNlbnRyYWwtTm9uQ29yZQ&rlid=3f55a6891a5018b29358cc2869c4db37&ntb=1",
+    "status": 302
+   },
+   {
+    "url": "https://www.lyst.com/shoes/nike-air-force-1/",
+    "status": 200
+   }
+  ],
+  "finalUrl": "https://www.lyst.com/shoes/nike-air-force-1/",
+  "body": "<html><body><h1>Nike Air Force 1 — Lyst</h1><p>Shop the hottest styles.</p></body></html>"
+ },
+ "https://www.bing.com/ck/a?!&&p=76febadd084281d59d93969c55e0e8a37f5fec54177f29c8f52c832f02f2227dJmltdHM9MTc4ODkxMjAwMA&ptn=3&ver=2&hsh=4&fclid=0c9202ed-9409-6cc6-15d1-1522959e6df1&u=a1L3Nob3AvdG9waWNzP3E9bmlrZSthaXIrZm9yY2UrMSZGT1JNPU1PUFQwMSZlcD0xJm9yaWdpbklHVUlEPUEwRTk4RUVCNERDNjRDNUY5NUI1OThBOUE5NEFGRTBB&ntb=1": {
+  "status": 200,
+  "hops": [
+   {
+    "url": "https://www.bing.com/ck/a?!&&p=76febadd084281d59d93969c55e0e8a37f5fec54177f29c8f52c832f02f2227dJmltdHM9MTc4ODkxMjAwMA&ptn=3&ver=2&hsh=4&fclid=0c9202ed-9409-6cc6-15d1-1522959e6df1&u=a1L3Nob3AvdG9waWNzP3E9bmlrZSthaXIrZm9yY2UrMSZGT1JNPU1PUFQwMSZlcD0xJm9yaWdpbklHVUlEPUEwRTk4RUVCNERDNjRDNUY5NUI1OThBOUE5NEFGRTBB&ntb=1",
+    "status": 302
+   },
+   {
+    "url": "https://www.ebay.com/itm/nike-air-force-1",
+    "status": 200
+   }
+  ],
+  "finalUrl": "https://www.ebay.com/itm/nike-air-force-1",
+  "body": "<html><body><h1>Nike Air Force 1 | eBay</h1></body></html>"
+ },
+ "https://www.bing.com/aclick?ld=e8f5EHdYVzCK2c5kqKcmFBnDVUCUye-uJgo4aCHWJstQA6ZyU6-mgp93OkSFk5YNv_iJ08-ZMddJGOqQ56aP_cYuyJtu30P8cvDynGFdT6SF9rR3mKp2kprgZes4DmemYsu9WuE-h08cnVnRBpsGugZmNm2Xkz25fgVUHxl_JUBl7NfbBHGS0v4IKfL6lYQBNSjpxRdrgDLWH4PFNPmmeyesa9cpM&u=aHR0cHMlM2ElMmYlMmZ3d3cuZ2xhbWkucm8lMmZuaWtlLWFpci1mb3JjZS0xJTJmJTNmdGhwJTNkbWFvJTI2bXNjbGtpZCUzZDhhODhjZGVkOGJhYTFmYjQwNWYxYTc0Y2Y4M2VkMjBmJTI2dXRtX3NvdXJjZSUzZGJpbmclMjZ1dG1fbWVkaXVtJTNkY3BjJTI2dXRtX2NhbXBhaWduJTNkU0NILUJSTkQlMjUyMEVkaXRpb25zJTI1MjBJTS1CSU5HJTI2dXRtX3Rlcm0lM2RuaWtlJTI1MjBhaXIlMjUyMGZvcmNlJTI1MjAxJTI2dXRtX2NvbnRlbnQlM2ROaWtlJTI1MjBBaXIlMjUyMEZvcmNlJTI1MjAx&rlid=8a88cded8baa1fb405f1a74cf83ed20f&ntb=1": {
+  "status": 200,
+  "hops": [
+   {
+    "url": "https://www.bing.com/aclick?ld=e8f5EHdYVzCK2c5kqKcmFBnDVUCUye-uJgo4aCHWJstQA6ZyU6-mgp93OkSFk5YNv_iJ08-ZMddJGOqQ56aP_cYuyJtu30P8cvDynGFdT6SF9rR3mKp2kprgZes4DmemYsu9WuE-h08cnVnRBpsGugZmNm2Xkz25fgVUHxl_JUBl7NfbBHGS0v4IKfL6lYQBNSjpxRdrgDLWH4PFNPmmeyesa9cpM&u=aHR0cHMlM2ElMmYlMmZ3d3cuZ2xhbWkucm8lMmZuaWtlLWFpci1mb3JjZS0xJTJmJTNmdGhwJTNkbWFvJTI2bXNjbGtpZCUzZDhhODhjZGVkOGJhYTFmYjQwNWYxYTc0Y2Y4M2VkMjBmJTI2dXRtX3NvdXJjZSUzZGJpbmclMjZ1dG1fbWVkaXVtJTNkY3BjJTI2dXRtX2NhbXBhaWduJTNkU0NILUJSTkQlMjUyMEVkaXRpb25zJTI1MjBJTS1CSU5HJTI2dXRtX3Rlcm0lM2RuaWtlJTI1MjBhaXIlMjUyMGZvcmNlJTI1MjAxJTI2dXRtX2NvbnRlbnQlM2ROaWtlJTI1MjBBaXIlMjUyMEZvcmNlJTI1MjAx&rlid=8a88cded8baa1fb405f1a74cf83ed20f&ntb=1",
+    "status": 302
+   },
+   {
+    "url": "https://www.glami.ro/branduri/nike/?utm_source=bing&utm_medium=cpc",
+    "status": 200
+   }
+  ],
+  "finalUrl": "https://www.glami.ro/branduri/nike/?utm_source=bing&utm_medium=cpc",
+  "body": "<html><body><h1>Nike pe GLAMI</h1><p>GLAMI iti arata oferte. We may earn a commission from partner shops.</p></body></html>"
+ },
+ "https://www.bing.com/aclick?ld=e8X3uAgCBW4aa-dAb0H4GU2DVUCUybFqTLdz0MnWGBe8S3CYc9QQ25yIXyPjdIawtTISX2gdOoo90aEPWvUXRjekmGjIq5453-K9NvQdpvphAgMaY85hfWbyRx0LTMcX5ck0hNpvxgjaGoeyp1pcBYxbNiFkGh9_rL8z9xamAhttb9iQL2yFAJUjRXsrEmBP-He-gx0pI4FrZ95ZS9EbN4af0v__I&u=aHR0cHMlM2ElMmYlMmZ3d3cubHlzdC5jb20lMmZkZXNpZ25lciUyZm5pa2UlMmYlM2Zwcm9kdWN0X3R5cGUlM2RTaG9lcyUyNmF0Y19jYW1wYWlnbiUzZEVVY2VudHJhbC1lbi1QYWlkLUJpbmctU2VhcmNoJTI2YXRjX2NvbnRlbnQlM2RFVWNlbnRyYWwtTm9uQ29yZSUyNmF0Y19jb3VudHJ5JTNkRVUlMjZhdGNfZ3JvdXBpbmclM2RzZWFyY2glMjZhdGNfbWVkaXVtJTNkY3BjJTI2YXRjX3NvdXJjZSUzZGJpbmclMjZhdGNfdGVybSUzZE5pa2UlMjUyMFNob2VzJTI2c2VtX2lkJTNkJTI2YXRjX2xhYmVsJTNkJTI2bXNjbGtpZCUzZDc1NzM4ZTFmZDU3ZjE4ZTNkMzIyZTRiZWE2ZWIxYTBjJTI2dXRtX3NvdXJjZSUzZGJpbmclMjZ1dG1fbWVkaXVtJTNkY3BjJTI2dXRtX2NhbXBhaWduJTNkRVVjZW50cmFsLWVuLVBhaWQtQmluZy1TZWFyY2glMjZ1dG1fdGVybSUzZE5pa2UlMjUyMFNob2VzJTI2dXRtX2NvbnRlbnQlM2RFVWNlbnRyYWwtTm9uQ29yZQ&rlid=75738e1fd57f18e3d322e4bea6eb1a0c&ntb=1": {
+  "status": 200,
+  "hops": [
+   {
+    "url": "https://www.bing.com/aclick?ld=e8X3uAgCBW4aa-dAb0H4GU2DVUCUybFqTLdz0MnWGBe8S3CYc9QQ25yIXyPjdIawtTISX2gdOoo90aEPWvUXRjekmGjIq5453-K9NvQdpvphAgMaY85hfWbyRx0LTMcX5ck0hNpvxgjaGoeyp1pcBYxbNiFkGh9_rL8z9xamAhttb9iQL2yFAJUjRXsrEmBP-He-gx0pI4FrZ95ZS9EbN4af0v__I&u=aHR0cHMlM2ElMmYlMmZ3d3cubHlzdC5jb20lMmZkZXNpZ25lciUyZm5pa2UlMmYlM2Zwcm9kdWN0X3R5cGUlM2RTaG9lcyUyNmF0Y19jYW1wYWlnbiUzZEVVY2VudHJhbC1lbi1QYWlkLUJpbmctU2VhcmNoJTI2YXRjX2NvbnRlbnQlM2RFVWNlbnRyYWwtTm9uQ29yZSUyNmF0Y19jb3VudHJ5JTNkRVUlMjZhdGNfZ3JvdXBpbmclM2RzZWFyY2glMjZhdGNfbWVkaXVtJTNkY3BjJTI2YXRjX3NvdXJjZSUzZGJpbmclMjZhdGNfdGVybSUzZE5pa2UlMjUyMFNob2VzJTI2c2VtX2lkJTNkJTI2YXRjX2xhYmVsJTNkJTI2bXNjbGtpZCUzZDc1NzM4ZTFmZDU3ZjE4ZTNkMzIyZTRiZWE2ZWIxYTBjJTI2dXRtX3NvdXJjZSUzZGJpbmclMjZ1dG1fbWVkaXVtJTNkY3BjJTI2dXRtX2NhbXBhaWduJTNkRVVjZW50cmFsLWVuLVBhaWQtQmluZy1TZWFyY2glMjZ1dG1fdGVybSUzZE5pa2UlMjUyMFNob2VzJTI2dXRtX2NvbnRlbnQlM2RFVWNlbnRyYWwtTm9uQ29yZQ&rlid=75738e1fd57f18e3d322e4bea6eb1a0c&ntb=1",
+    "status": 302
+   },
+   {
+    "url": "https://www.lyst.com/shoes/nike-air-force-1/",
+    "status": 200
+   }
+  ],
+  "finalUrl": "https://www.lyst.com/shoes/nike-air-force-1/",
+  "body": "<html><body><h1>Nike Air Force 1 — Lyst</h1><p>Shop the hottest styles.</p></body></html>"
+ },
+ "https://www.bing.com/aclick?ld=e84e2AGP3V3Hr-tFPE9EkxbjVUCUwY3-ujjkiPpNQEW0Qd-imWukEOsn8X3h91YyFDdClwICw_5KJQODB3U0GlkvZe2SHvnmDGPIn0GO3dxFW4WhOOpKiw9G45t8qjOzLMZWoP4z_ZSS3bQXqWzwH0czuPZ3DpD2WByDTs7RPvd4srkz2JAjj1KhtLNmROosuro0WJYqvLwtAXwxEkywavVdbOkf8&u=aHR0cHMlM2ElMmYlMmZ3d3cuYmVyZ2ZyZXVuZGUuZXUlMmZicmFuZHMlMmZuaWtlJTJmbXVsdGlzcG9ydC1zaG9lcyUyZiUzZnBpZCUzZDEwMDA0JTI2d3RfbWMlM2RldS5uYnBzLmJpbmdfZXUuNDQ2MTA0ODY0LjExNTc3ODY5MzM2MzE2OTkuNzIzNjE5MjEyMDQ5MTUlMjZ3dF9jYzElM2RicmFuZHMlMjZwcm9mJTNkNDE0JTI2Y2FtcCUzZDE2NDMxNyUyNmtjdCUzZG1zbiUyNmtjaGlkJTNkNDM3JTI2Y3JpdGVyaWFpZCUzZGRhdC0yMzI0MTYxNDIzMDc2MzU4JTNhbG9jLTIyNCUyNmNhbXBhaWduaWQlM2Q0NDYxMDQ4NjQlMjZsb2NwaHklM2QxNDA5ODclMjZhZGdyb3VwaWQlM2QxMTU3Nzg2OTMzNjMxNjk5JTI2Y2lkJTNkNzIzNjE5MjEyMDQ5MTUlMjZrZHYlM2RjJTI2a2V4dCUzZCUyNmtwZyUzZCUyNmtwaWQlM2QlMjZxdWVyeVN0ciUzZG5pa2UlMjUyMGFpciUyNTIwZm9yY2UlMjUyMDElMjZtc2Nsa2lkJTNkM2M2ODVlZmFiNTA3MTU4OTkzZjkzNDViYzY5M2I1YzElMjZ1dG1fc291cmNlJTNkYmluZyUyNnV0bV9tZWRpdW0lM2RjcGMlMjZ1dG1fY2FtcGFpZ24lM2QyJTI1MjAtJTI1MjBEeW5hbWljJTI1MjBTZWFyY2glMjUyMEFkcyUyNnV0bV90ZXJtJTNkYnJhbmRzJTI2dXRtX2NvbnRlbnQlM2RNYXJrZW4&rlid=3c685efab507158993f9345bc693b5c1&ntb=1": {
+  "status": 200,
+  "hops": [
+   {
+    "url": "https://www.bing.com/aclick?ld=e84e2AGP3V3Hr-tFPE9EkxbjVUCUwY3-ujjkiPpNQEW0Qd-imWukEOsn8X3h91YyFDdClwICw_5KJQODB3U0GlkvZe2SHvnmDGPIn0GO3dxFW4WhOOpKiw9G45t8qjOzLMZWoP4z_ZSS3bQXqWzwH0czuPZ3DpD2WByDTs7RPvd4srkz2JAjj1KhtLNmROosuro0WJYqvLwtAXwxEkywavVdbOkf8&u=aHR0cHMlM2ElMmYlMmZ3d3cuYmVyZ2ZyZXVuZGUuZXUlMmZicmFuZHMlMmZuaWtlJTJmbXVsdGlzcG9ydC1zaG9lcyUyZiUzZnBpZCUzZDEwMDA0JTI2d3RfbWMlM2RldS5uYnBzLmJpbmdfZXUuNDQ2MTA0ODY0LjExNTc3ODY5MzM2MzE2OTkuNzIzNjE5MjEyMDQ5MTUlMjZ3dF9jYzElM2RicmFuZHMlMjZwcm9mJTNkNDE0JTI2Y2FtcCUzZDE2NDMxNyUyNmtjdCUzZG1zbiUyNmtjaGlkJTNkNDM3JTI2Y3JpdGVyaWFpZCUzZGRhdC0yMzI0MTYxNDIzMDc2MzU4JTNhbG9jLTIyNCUyNmNhbXBhaWduaWQlM2Q0NDYxMDQ4NjQlMjZsb2NwaHklM2QxNDA5ODclMjZhZGdyb3VwaWQlM2QxMTU3Nzg2OTMzNjMxNjk5JTI2Y2lkJTNkNzIzNjE5MjEyMDQ5MTUlMjZrZHYlM2RjJTI2a2V4dCUzZCUyNmtwZyUzZCUyNmtwaWQlM2QlMjZxdWVyeVN0ciUzZG5pa2UlMjUyMGFpciUyNTIwZm9yY2UlMjUyMDElMjZtc2Nsa2lkJTNkM2M2ODVlZmFiNTA3MTU4OTkzZjkzNDViYzY5M2I1YzElMjZ1dG1fc291cmNlJTNkYmluZyUyNnV0bV9tZWRpdW0lM2RjcGMlMjZ1dG1fY2FtcGFpZ24lM2QyJTI1MjAtJTI1MjBEeW5hbWljJTI1MjBTZWFyY2glMjUyMEFkcyUyNnV0bV90ZXJtJTNkYnJhbmRzJTI2dXRtX2NvbnRlbnQlM2RNYXJrZW4&rlid=3c685efab507158993f9345bc693b5c1&ntb=1",
+    "status": 302
+   },
+   {
+    "url": "https://www.bergfreunde.eu/nike-sports-shoes/",
+    "status": 200
+   }
+  ],
+  "finalUrl": "https://www.bergfreunde.eu/nike-sports-shoes/",
+  "body": "<html><body><h1>Nike Sports Shoes — Bergfreunde</h1></body></html>"
+ }
+}
