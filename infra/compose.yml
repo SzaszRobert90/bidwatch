@@ -78,8 +78,9 @@ services:
       BIDWATCH_NO_SANDBOX: "1"
       DISPLAY: ":99"
     volumes: ["browser-profile:/data"]
-    # headful chromium under xvfb inside the container
-    entrypoint: ["/usr/bin/xvfb-run", "-a", "--server-args=-screen 0 1280x800x24"]
+    # headful chromium under an explicit Xvfb display (xvfb-run hangs in this image)
+    entrypoint: []
+    command: ["/bin/sh", "-c", "Xvfb :99 -screen 0 1280x800x24 -nolisten tcp & sleep 2; export DISPLAY=:99; exec node dist/apps/worker/main.js"]
     restart: unless-stopped
     shm_size: 1gb
     depends_on:
