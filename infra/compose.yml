@@ -78,7 +78,7 @@ services:
       DISPLAY: ":99"
     volumes: ["browser-profile:/data"]
     # headful chromium under xvfb inside the container
-    entrypoint: ["/usr/local/bin/xvfb-run", "-a", "--server-args=-screen 0 1280x800x24"]
+    entrypoint: ["/usr/bin/xvfb-run", "-a", "--server-args=-screen 0 1280x800x24"]
     restart: unless-stopped
     shm_size: 1gb
     depends_on:
