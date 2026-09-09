@@ -32,9 +32,9 @@ jobs:
           docker run -d --name minio --network bidwatch-ci -p 9000:9000 \
             -e MINIO_ROOT_USER=bidwatchlocal -e MINIO_ROOT_PASSWORD=bidwatchlocal-secret \
             minio/minio:latest server /data
-          docker run --rm --network bidwatch-ci minio/mc:latest \
-            sh -c "until mc alias set l http://minio:9000 bidwatchlocal bidwatchlocal-secret >/dev/null 2>&1; do sleep 1; done; \
-                   mc mb -p l/bidwatch-raw l/bidwatch-curated l/bidwatch-reports"
+          docker run --rm --network bidwatch-ci --entrypoint /bin/sh minio/mc:latest -c \
+            "until mc alias set l http://minio:9000 bidwatchlocal bidwatchlocal-secret >/dev/null 2>&1; do sleep 1; done; \
+             mc mb -p l/bidwatch-raw l/bidwatch-curated l/bidwatch-reports"
       - name: start elasticmq
         run: |
           docker run -d --name sqs -p 9324:9324 \
