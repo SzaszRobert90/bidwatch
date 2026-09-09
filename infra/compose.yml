@@ -75,6 +75,7 @@ services:
       BIDWATCH_BROWSER_CHANNEL: ""
       BIDWATCH_PROFILE_DIR: /data/profile-bing
       BIDWATCH_POLITENESS_MS: "1500"
+      BIDWATCH_NO_SANDBOX: "1"
       DISPLAY: ":99"
     volumes: ["browser-profile:/data"]
     # headful chromium under xvfb inside the container
@@ -114,7 +115,7 @@ services:
 
   report:
     image: bidwatch-worker:local
-    command: ["node", "dist/apps/report/main.js"]
+    command: ["/bin/sh", "-c", "while true; do node dist/apps/report/main.js || true; sleep 21600; done"]
     environment:
       <<: *worker-env
     restart: unless-stopped
