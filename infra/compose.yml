@@ -10,6 +10,7 @@ x-worker-env: &worker-env
   BIDWATCH_DLQ_URL: http://elasticmq:9324/queue/bidwatch-dlq
   BIDWATCH_SQS_ENDPOINT: http://elasticmq:9324
   BIDWATCH_S3_ENDPOINT: http://minio:9000
+  BIDWATCH_S3_USE_SSL: "false"
   BIDWATCH_RAW_BUCKET: bidwatch-raw
   BIDWATCH_CURATED_BUCKET: bidwatch-curated
   BIDWATCH_REPORTS_BUCKET: bidwatch-reports
