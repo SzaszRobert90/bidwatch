@@ -12,6 +12,7 @@ REMOTE=$(git rev-parse origin/main)
 
 echo "$(date -Is) deploying $REMOTE"
 git pull -q --ff-only origin main
+cd infra
 docker compose --profile prod up -d --build --quiet-pull
 docker image prune -f >/dev/null
 echo "$(date -Is) deployed"
