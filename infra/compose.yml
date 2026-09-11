@@ -78,9 +78,11 @@ services:
       BIDWATCH_NO_SANDBOX: "1"
       DISPLAY: ":99"
     volumes: ["browser-profile:/data"]
-    # headful chromium under an explicit Xvfb display (xvfb-run hangs in this image)
+    # headful chromium under an explicit Xvfb display (xvfb-run hangs in this image);
+    # a stale /tmp/.X99-lock survives container restarts and fatal-exits Xvfb —
+    # nothing else in the container owns :99, so any pre-existing lock is stale.
     entrypoint: []
-    command: ["/bin/sh", "-c", "Xvfb :99 -screen 0 1280x800x24 -nolisten tcp & sleep 2; export DISPLAY=:99; exec node dist/apps/worker/main.js"]
+    command: ["/bin/sh", "-c", "rm -f /tmp/.X99-lock /tmp/.X11-unix/X99; Xvfb :99 -screen 0 1280x800x24 -nolisten tcp & sleep 2; export DISPLAY=:99; exec node dist/apps/worker/main.js"]
     restart: unless-stopped
     shm_size: 1gb
     depends_on:
