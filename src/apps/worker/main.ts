@@ -1,6 +1,7 @@
 import { loadEnv } from "../../config.js";
 import { wire } from "../../compose.js";
 import { processJob, type PipelineDeps } from "./pipeline.js";
+import type { QueueMessage } from "../../domain/ports.js";
 
 /** Worker loop: receive -> process -> delete. `--once` drains the queue then exits. */
 export async function main(): Promise<void> {
@@ -29,7 +30,17 @@ export async function main(): Promise<void> {
   });
 
   while (running) {
-    const messages = await queue.receive(10, once ? 3 : 20);
+    let messages: QueueMessage[];
+    try {
+      messages = await queue.receive(10, once ? 3 : 20);
+    } catch (err) {
+      // A transient queue blip (e.g. ElasticMQ 503 with a non-JSON body) must
+      // not kill the worker — log, back off, and keep polling.
+      log.error({ err }, "queue receive failed; backing off 5s");
+      await new Promise((r) => setTimeout(r, 5_000));
+      if (once) break;
+      continue;
+    }
     if (messages.length === 0) {
       if (once) break;
       continue;
