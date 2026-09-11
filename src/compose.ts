@@ -1,5 +1,6 @@
 import { BingHttpProvider } from "./adapters/bing/bing-http.js";
 import { BingPlaywrightProvider } from "./adapters/bing/bing-playwright.js";
+import { AclickResolvingInspector } from "./adapters/bing/aclick.js";
 import { HttpLandingInspector } from "./adapters/landing/inspector.js";
 import { createCurlImpersonateTransport } from "./adapters/landing/curl-impersonate.js";
 import { FixtureLandingInspector, FixtureSerpProvider } from "./adapters/fixture/fixture.js";
@@ -44,11 +45,15 @@ export function wire(env: Env): Wiring {
   const inspector: LandingInspector =
     env.BIDWATCH_MODE === "fixture"
       ? new FixtureLandingInspector(signatures, env.BIDWATCH_FIXTURES_DIR)
-      : new HttpLandingInspector({
-          signatures,
-          transport,
-          proxies: splitList(env.BIDWATCH_PROXIES),
-        });
+      : // Bing aclick serves a JS interstitial to plain-HTTP clients; resolve
+        // the embedded `u` destination so the inspected chain is real evidence.
+        new AclickResolvingInspector(
+          new HttpLandingInspector({
+            signatures,
+            transport,
+            proxies: splitList(env.BIDWATCH_PROXIES),
+          }),
+        );
 
   const queue = new SqsJobQueue({
     queueUrl: env.BIDWATCH_QUEUE_URL,
