@@ -64,3 +64,26 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - run: docker build -f infra/Dockerfile -t bidwatch-worker:ci .
+
+  # GitHub pushes the worker image to ghcr; the homelab only ever pulls.
+  # :dev moves on every push to main; the prod stack picks :prod from release.yml.
+  publish:
+    runs-on: ubuntu-latest
+    needs: [test, docker]
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: build and push dev image
+        run: |
+          IMAGE=ghcr.io/szaszrobert90/bidwatch-worker
+          docker build -f infra/Dockerfile -t $IMAGE:dev -t $IMAGE:dev-${{ github.sha }} .
+          docker push $IMAGE:dev
+          docker push $IMAGE:dev-${{ github.sha }}

@@ -1,0 +1,36 @@
+name: mirror-images
+
+# Belt-and-braces: copy third-party images into our own ghcr so upstream
+# registry changes (see the minio docker-hub removal) can never break CI or
+# the homelab. Run manually when upstreams move, or monthly.
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "0 4 1 * *"
+
+permissions:
+  contents: read
+  packages: write
+
+jobs:
+  mirror:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: mirror third-party images
+        run: |
+          set -e
+          mirror() {
+            src="$1"; dst="$2"
+            echo "== $src -> $dst"
+            docker pull "$src"
+            docker tag "$src" "$dst"
+            docker push "$dst"
+          }
+          mirror quay.io/minio/minio:latest          ghcr.io/szaszrobert90/minio:latest
+          mirror quay.io/minio/mc:latest             ghcr.io/szaszrobert90/mc:latest
+          mirror softwaremill/elasticmq-native:1.7.1 ghcr.io/szaszrobert90/elasticmq-native:1.7.1

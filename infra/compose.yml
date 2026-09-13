@@ -17,7 +17,7 @@ x-worker-env: &worker-env
 
 services:
   minio:
-    image: quay.io/minio/minio:latest
+    image: ghcr.io/szaszrobert90/minio:latest
     command: server /data --console-address ":9001"
     ports: ["9000:9000"]
     volumes: ["minio-data:/data"]
@@ -31,7 +31,7 @@ services:
       retries: 12
 
   minio-init:
-    image: quay.io/minio/mc:latest
+    image: ghcr.io/szaszrobert90/mc:latest
     depends_on:
       minio:
         condition: service_healthy
@@ -46,15 +46,12 @@ services:
       AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY:-bidwatchlocal-secret}
 
   elasticmq:
-    image: softwaremill/elasticmq-native:1.7.1
+    image: ghcr.io/szaszrobert90/elasticmq-native:1.7.1
     ports: ["9324:9324"]
     volumes: ["./elasticmq.conf:/opt/elasticmq.conf:ro"]
 
   feeder:
-    build:
-      context: ..
-      dockerfile: infra/Dockerfile
-    image: bidwatch-worker:local
+    image: ghcr.io/szaszrobert90/bidwatch-worker:${BIDWATCH_IMAGE_TAG:-dev}
     command: ["node", "dist/apps/feeder/main.js"]
     environment:
       <<: *worker-env
@@ -63,10 +60,7 @@ services:
     profiles: ["prod"]
 
   worker:
-    image: bidwatch-worker:local
-    build:
-      context: ..
-      dockerfile: infra/Dockerfile
+    image: ghcr.io/szaszrobert90/bidwatch-worker:${BIDWATCH_IMAGE_TAG:-dev}
     environment:
       <<: *worker-env
       BIDWATCH_MODE: live
@@ -92,10 +86,7 @@ services:
 
   # dev: fixture replay, no live scraping — safe to run any time
   feeder-dev:
-    image: bidwatch-worker:local
-    build:
-      context: ..
-      dockerfile: infra/Dockerfile
+    image: ghcr.io/szaszrobert90/bidwatch-worker:${BIDWATCH_IMAGE_TAG:-dev}
     command: ["node", "dist/apps/feeder/main.js", "--once"]
     environment:
       <<: *worker-env
@@ -104,7 +95,7 @@ services:
     profiles: ["dev"]
 
   worker-dev:
-    image: bidwatch-worker:local
+    image: ghcr.io/szaszrobert90/bidwatch-worker:${BIDWATCH_IMAGE_TAG:-dev}
     command: ["node", "dist/apps/worker/main.js", "--once"]
     environment:
       <<: *worker-env
@@ -117,7 +108,7 @@ services:
     profiles: ["dev"]
 
   report:
-    image: bidwatch-worker:local
+    image: ghcr.io/szaszrobert90/bidwatch-worker:${BIDWATCH_IMAGE_TAG:-dev}
     command: ["/bin/sh", "-c", "while true; do node dist/apps/report/main.js || true; sleep 21600; done"]
     environment:
       <<: *worker-env

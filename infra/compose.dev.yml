@@ -1,0 +1,10 @@
+# Override for the server-side dev stack (second compose project):
+#   docker compose -p bidwatch-dev --profile dev -f compose.yml -f compose.dev.yml ...
+# Everything is internal-only — dev data never leaves the CT, nothing clashes
+# with the prod project's published ports. (!reset required: plain [] would
+# MERGE with the base port lists, not replace them.)
+services:
+  minio:
+    ports: !reset []
+  elasticmq:
+    ports: !reset []

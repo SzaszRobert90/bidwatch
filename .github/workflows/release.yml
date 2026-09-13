@@ -1,0 +1,36 @@
+name: release
+
+on:
+  workflow_dispatch:
+  push:
+    tags: ["v*"]
+
+permissions:
+  contents: read
+  packages: write
+
+concurrency:
+  group: release
+  cancel-in-progress: false
+
+jobs:
+  publish-prod:
+    runs-on: ubuntu-latest
+    # prod "gate" today: manual dispatch only (required-reviewers needs a public
+    # repo or paid plan). The homelab timer pulls :prod within 10 minutes.
+    environment: prod
+    steps:
+      - uses: actions/checkout@v4
+      - uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: build and push prod image
+        run: |
+          IMAGE=ghcr.io/szaszrobert90/bidwatch-worker
+          args="-t $IMAGE:prod"
+          if [[ "${{ github.ref_name }}" == v* ]]; then args="$args -t $IMAGE:${{ github.ref_name }}"; fi
+          docker build -f infra/Dockerfile $args .
+          docker push $IMAGE:prod
+          if [[ "${{ github.ref_name }}" == v* ]]; then docker push "$IMAGE:${{ github.ref_name }}"; fi

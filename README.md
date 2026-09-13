@@ -61,10 +61,23 @@ npx tsx scripts/record-fixtures.ts   # refresh live fixtures (opens Chrome)
 
 ## Deployment
 
-GitHub runners cannot reach the LAN, so the homelab LXC runs a **pull-deploy timer**
-(`infra/deploy.timer`): every 10 min it pulls main and rebuilds the live stack.
-The GH `environment: prod` gate becomes active once the runner can join the tailnet
-(Tailscale auth key + SSH workflow). Until then, releases to prod = merges to main.
+GitHub pushes artifacts; the homelab only pulls. Nothing builds on the server.
+
+```
+push to main ───▶ CI: test → integration → docker
+                      └────────▶ publish  ghcr.io/szaszrobert90/bidwatch-worker:dev
+dispatch / tag v* ─▶ release.yml ─▶ publish …:prod          (the prod "gate")
+mirror-images.yml ─▶ minio/mc/elasticmq copied into our ghcr (upstream-proof)
+```
+
+The homelab LXC runs `bidwatch-deploy.timer` (every 10 min, `infra/deploy.sh`):
+`git pull` for config, `docker compose pull` for images, then
+- **prod stack** (`-p bidwatch`, live scraping, cron 06:00) runs `:prod`
+- **dev stack** (`-p bidwatch-dev`, fixture replay, internal-only networking) runs `:dev`
+
+Server auth: one ghcr login for the deploy user (packages-read token).
+Local auth: `gh auth refresh -s read:packages,write:packages`, then
+`docker login ghcr.io -u szaszrobert90 -p "$(wsl -e bash -lc 'gh auth token')"`.
 
 ## Environments
 
