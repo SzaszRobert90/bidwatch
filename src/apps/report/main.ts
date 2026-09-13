@@ -20,11 +20,11 @@ export async function main(): Promise<void> {
   const curated = env.BIDWATCH_CURATED_BUCKET;
   await conn.run(
     `CREATE OR REPLACE VIEW observations AS
-     SELECT * FROM read_json('s3://${curated}/curated/observations/**/*.jsonl', format='newline_delimited')`,
+     SELECT * FROM read_json('s3://${curated}/curated/observations/**/*.jsonl', format='newline_delimited', union_by_name=true)`,
   );
   await conn.run(
     `CREATE OR REPLACE VIEW landings AS
-     SELECT * FROM read_json('s3://${curated}/curated/landings/**/*.jsonl', format='newline_delimited')`,
+     SELECT * FROM read_json('s3://${curated}/curated/landings/**/*.jsonl', format='newline_delimited', union_by_name=true)`,
   );
 
   const store = new S3ResultStore({
