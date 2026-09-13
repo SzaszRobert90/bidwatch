@@ -51,6 +51,10 @@ scripts/          probes, fixture recording, e2e
 
 ```bash
 npm ci
+
+# WSL users: after any `npm ci`, run `bash scripts/wsl-setup.sh` once —
+# it adds the linux native binaries next to the windows ones so one
+# node_modules works from both (the `bidwatch` alias does this automatically).
 npm test                      # unit (no network)
 bash scripts/e2e-local.sh     # compose up minio+elasticmq, fixture run end to end
 npm run feeder -- --once      # feed live jobs (needs .env, see .env.example)
