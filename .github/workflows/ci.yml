@@ -29,17 +29,18 @@ jobs:
       - name: start minio
         run: |
           docker network create bidwatch-ci
+          # minio removed their docker-hub namespace (2025); quay is the public mirror
           docker run -d --name minio --network bidwatch-ci -p 9000:9000 \
             -e MINIO_ROOT_USER=bidwatchlocal -e MINIO_ROOT_PASSWORD=bidwatchlocal-secret \
-            minio/minio:latest server /data
-          docker run --rm --network bidwatch-ci --entrypoint /bin/sh minio/mc:latest -c \
+            quay.io/minio/minio:latest server /data
+          docker run --rm --network bidwatch-ci --entrypoint /bin/sh quay.io/minio/mc:latest -c \
             "until mc alias set l http://minio:9000 bidwatchlocal bidwatchlocal-secret >/dev/null 2>&1; do sleep 1; done; \
              mc mb -p l/bidwatch-raw l/bidwatch-curated l/bidwatch-reports"
       - name: start elasticmq
         run: |
           docker run -d --name sqs -p 9324:9324 \
             -v "$PWD/infra/elasticmq.conf:/opt/elasticmq.conf:ro" \
-            softwaremill/elasticmq-native:latest
+            softwaremill/elasticmq-native:1.7.1
           for i in $(seq 1 30); do
             curl -sf http://localhost:9324/health && break || sleep 1
           done
