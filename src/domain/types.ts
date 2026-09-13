@@ -47,6 +47,8 @@ export interface SignatureDb {
   networks: Array<{
     network: string;
     params: Array<{ name: string; valuePattern?: string }>;
+    /** Regexes tested against every query param VALUE (networks leak into utm_campaign etc.). */
+    valuePatterns: string[];
     domains: string[];
     disclosure: string[];
   }>;
@@ -57,8 +59,8 @@ export interface Hop {
   status: number;
 }
 
-export type SignatureKind = "param" | "domain" | "disclosure";
-export type MatchSource = "chain" | "final_url" | "body";
+export type SignatureKind = "param" | "value" | "domain" | "disclosure";
+export type MatchSource = "chain" | "final_url" | "ad_meta" | "body";
 
 export interface SignatureMatch {
   network: string;
@@ -79,6 +81,8 @@ export interface LandingInspection {
   matches: SignatureMatch[];
   /** Set when the landing could not be inspected (blocked, timeout, ...). */
   error: string | null;
+  /** Destination decoded from the ad's `u=` param, when the click URL is a bing aclick. */
+  adMetaUrl: string | null;
 }
 
 /** One row of the curated landings layer: inspection joined with the ad it came from. */

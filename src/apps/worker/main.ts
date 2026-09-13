@@ -6,13 +6,14 @@ import type { QueueMessage } from "../../domain/ports.js";
 /** Worker loop: receive -> process -> delete. `--once` drains the queue then exits. */
 export async function main(): Promise<void> {
   const env = loadEnv();
-  const { provider, inspector, queue, store, log } = wire(env);
+  const { provider, inspector, queue, store, signatures, log } = wire(env);
   await queue.ensureQueues();
 
   const deps: PipelineDeps = {
     provider,
     inspector,
     store,
+    signatures,
     rawBucket: env.BIDWATCH_RAW_BUCKET,
     curatedBucket: env.BIDWATCH_CURATED_BUCKET,
     maxLandings: env.BIDWATCH_MAX_LANDINGS,

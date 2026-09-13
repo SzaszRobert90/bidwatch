@@ -71,6 +71,7 @@ const paramSchema = z.object({
 const networkSchema = z.object({
   network: z.string().min(1),
   params: z.array(paramSchema).default([]),
+  valuePatterns: z.array(z.string()).default([]),
   domains: z.array(z.string()).default([]),
   disclosure: z.array(z.string()).default([]),
 });

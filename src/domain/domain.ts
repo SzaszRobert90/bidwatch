@@ -52,8 +52,10 @@ export function classifyLanding(
   inspection: LandingInspection,
 ): LandingClass {
   if (sameSite(ad.displayDomain, query.brandDomain)) return "self_bid";
-  if (inspection.error !== null) return "unknown";
+  // ad_meta matches come from Bing's own click-URL metadata and hold even when
+  // the landing fetch was guarded — that combination is a verified catch.
   if (inspection.matches.length > 0) return "affiliate_violation";
+  if (inspection.error !== null) return "unknown";
   return "competitor_conquest";
 }
 

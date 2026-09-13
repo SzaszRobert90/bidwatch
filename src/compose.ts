@@ -9,6 +9,7 @@ import { S3ResultStore } from "./adapters/store/s3.js";
 import { loadSignatures } from "./config.js";
 import type { Env } from "./config.js";
 import type { JobQueue, LandingInspector, ResultStore, SerpProvider } from "./domain/ports.js";
+import type { SignatureDb } from "./domain/types.js";
 import pino from "pino";
 
 export interface Wiring {
@@ -16,6 +17,7 @@ export interface Wiring {
   inspector: LandingInspector;
   queue: JobQueue;
   store: ResultStore;
+  signatures: SignatureDb;
   log: pino.Logger;
 }
 
@@ -66,7 +68,7 @@ export function wire(env: Env): Wiring {
     forcePathStyle: env.BIDWATCH_S3_ENDPOINT !== "",
   });
 
-  return { provider, inspector, queue, store, log };
+  return { provider, inspector, queue, store, signatures, log };
 }
 
 function splitList(value: string): string[] {

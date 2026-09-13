@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { AclickResolvingInspector, resolveAclickTarget } from "../src/adapters/bing/aclick.js";
+import { AclickResolvingInspector } from "../src/adapters/bing/aclick.js";
+import { resolveAclickTarget } from "../src/domain/aclick.js";
 import type { LandingInspection } from "../src/domain/types.js";
 
 // Real capture: curated landings dt=2026-09-09, nordvpn / bigcouponcodes.com.
@@ -13,6 +14,14 @@ const REAL_TARGET =
 describe("resolveAclickTarget", () => {
   it("decodes the u param of a real aclick capture to the true landing", () => {
     expect(resolveAclickTarget(REAL_ACLICK)).toBe(REAL_TARGET);
+  });
+
+  it("decodes the real couponsmith destination with campaign naming intact (2026-09-09)", () => {
+    const u =
+      "aHR0cHMlM2ElMmYlMmZjb3Vwb25zbWl0aC5jb20lMmZ1cy1lbiUyZnByb21vLWNvZGVzJTJmbm9yZHZwbiUzZnVybCUzZGh0dHBzJTI1M0ElMjUyRiUyNTJGY291cG9uc21pdGguY29tJTI1MkZ1cy1lbiUyNTJGcHJvbW8tY29kZXMlMjUyRm5vcmR2cG4lMjZkZXZpY2UlM2RjJTI2bmV0d29yayUzZG8lMjZjYW1wYWlnbiUzZDUyNDMxNzg3OCUyNmt3ZCUzZG5vcmR2cG4lMjUyMGNvdXBvbiUyNm1lZGl1bSUzZGNwYyUyNmFkZ3JvdXBpZCUzZDEzMTM5MTkzMTM2NzEyMDElMjZsb2NfaW50ZXJlc3QlM2QlMjZsb2NfcGh5c2ljYWwlM2QyMjQlMjZ0YXJnZXRpZCUzZGt3ZC04MjEyMTY4ODIxMzUwMyUyNm1hdGNodHlwZSUzZGUlMjZtc2Nsa2lkJTNkYWJlMzRiNzkyNTIzMTg1ZTBhOWEyMWQ4YTBjYTRmYTQlMjZ1dG1fc291cmNlJTNkYmluZyUyNnV0bV9tZWRpdW0lM2RjcGMlMjZ1dG1fY2FtcGFpZ24lM0ROb3JkJTI1MjAlZTIlODclODYlMjUyMENTJTI1MjAlZTIlODclODYlMjUyMEFkbWl0YWQlMjUyMChsbWMpJTI2dXRtX3Rlcm0lM2Rub3JkdnBuJTI1MjBjb3Vwb24lMjZ1dG1fY29udGVudCUzZE5vcmQlMjUyMCVlMiU5ZSVhNSUyNTIwQ1M";
+    const target = resolveAclickTarget(`https://www.bing.com/aclick?ld=e8LIVE&u=${u}`);
+    expect(target).toContain("https://couponsmith.com/us-en/promo-codes/nordvpn");
+    expect(target!.toLowerCase()).toContain("admitad");
   });
 
   it("tolerates url-safe base64 and missing padding", () => {
@@ -43,6 +52,7 @@ function stubInspection(url: string): LandingInspection {
     fetchedAt: "2026-09-11T00:00:00.000Z",
     matches: [],
     error: null,
+    adMetaUrl: null,
   };
 }
 

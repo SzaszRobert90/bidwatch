@@ -61,7 +61,7 @@ export async function main(): Promise<void> {
       `SELECT "keyword", "adIndex", "classification", "networks", "title", "displayDomain",
               "inspection"['finalDomain'] AS finalDomain,
               "inspection"['error'] AS error,
-              list_transform("inspection"['matches'], m -> m['evidence']) AS evidence
+              list_transform("inspection"['matches'], m -> m['evidence'] || ' (' || m['source'] || ')') AS evidence
        FROM landings
        WHERE brand = '${row.brand}' AND substr(CAST("fetchedAt" AS VARCHAR), 1, 10) = '${date}'
        ORDER BY CASE "classification" WHEN 'affiliate_violation' THEN 0 ELSE 1 END, "adIndex"`,

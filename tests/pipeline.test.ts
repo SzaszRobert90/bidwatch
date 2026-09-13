@@ -1,7 +1,14 @@
 import { describe, expect, it } from "vitest";
 import { gzipSync } from "node:zlib";
 import { processJob, type PipelineDeps } from "../src/apps/worker/pipeline.js";
+import { loadEnv, loadSignatures } from "../src/config.js";
 import type { LandingInspection, SerpFetch, SerpQuery } from "../src/domain/types.js";
+
+const signatures = loadSignatures(loadEnv({}));
+
+/** A real-shaped aclick URL whose embedded destination carries an affiliate param. */
+const AFFILIATE_DEST = "https://coupons-deals.com/nordvpn?sscid=abc123";
+const AFFILIATE_ACLICK = `https://www.bing.com/aclick?ld=e8TEST&u=${Buffer.from(encodeURIComponent(AFFILIATE_DEST)).toString("base64url")}&ntb=1`;
 
 const job: SerpQuery = {
   runId: "run_abc",
@@ -13,7 +20,7 @@ const job: SerpQuery = {
   enqueuedAt: "2026-09-09T00:00:00Z",
 };
 
-function fakeInspection(clickUrl: string, withSignature: boolean): LandingInspection {
+function fakeInspection(clickUrl: string): LandingInspection {
   return {
     requestUrl: clickUrl,
     requestDomain: "coupons-deals.com",
@@ -22,10 +29,9 @@ function fakeInspection(clickUrl: string, withSignature: boolean): LandingInspec
     finalDomain: "coupons-deals.com",
     httpStatus: 200,
     fetchedAt: "2026-09-09T00:00:01Z",
-    matches: withSignature
-      ? [{ network: "shareasale", kind: "param", source: "final_url", evidence: "query param sscid=abc123" }]
-      : [],
+    matches: [],
     error: null,
+    adMetaUrl: null,
   };
 }
 
@@ -38,7 +44,7 @@ function makeDeps() {
     finalUrl: "https://bing/x",
     html: "<html>serp</html>",
     ads: [
-      { adIndex: 0, title: "Coupon site", description: null, displayUrl: "https://coupons-deals.com", displayDomain: "coupons-deals.com", clickUrl: "https://click/1" },
+      { adIndex: 0, title: "Coupon site", description: null, displayUrl: "https://coupons-deals.com", displayDomain: "coupons-deals.com", clickUrl: AFFILIATE_ACLICK },
       { adIndex: 1, title: "Official", description: null, displayUrl: "https://www.nordvpn.com", displayDomain: "www.nordvpn.com", clickUrl: "https://click/2" },
       { adIndex: 2, title: "Compare", description: null, displayUrl: "https://vpn-compare.io", displayDomain: "vpn-compare.io", clickUrl: "https://click/3" },
     ],
@@ -47,7 +53,7 @@ function makeDeps() {
 
   const deps: PipelineDeps = {
     provider: { fetchSerp: async () => serp },
-    inspector: { inspect: async (url) => fakeInspection(url, url === "https://click/1") },
+    inspector: { inspect: async (url) => fakeInspection(url) },
     store: {
       putObject: async () => {},
       putText: async (key, body) => {
@@ -57,6 +63,7 @@ function makeDeps() {
         puts.push({ key, body: gzipSync(Buffer.from(text)).toString("base64").slice(0, 8), gzip: true });
       },
     },
+    signatures,
     rawBucket: "bidwatch-raw",
     curatedBucket: "bidwatch-curated",
     maxLandings: 8,
@@ -87,6 +94,13 @@ describe("processJob", () => {
     expect(landings.find((l) => l.adIndex === 0).classification).toBe("affiliate_violation");
     expect(landings.find((l) => l.adIndex === 2).classification).toBe("competitor_conquest");
     expect(landings.find((l) => l.adIndex === 0).networks).toEqual(["shareasale"]);
+
+    // the violation came from decoded ad metadata, not the landing chain
+    const affiliateLanding = landings.find((l) => l.adIndex === 0);
+    expect(affiliateLanding.inspection.adMetaUrl).toBe(AFFILIATE_DEST);
+    const metaMatches = affiliateLanding.inspection.matches.filter((m) => m.source === "ad_meta");
+    expect(metaMatches.length).toBeGreaterThan(0);
+    expect(metaMatches[0].evidence).toContain("sscid");
 
     expect(puts.find((p) => p.key.includes("bidwatch-raw/raw/engine=bing/dt=2026-09-09/run=run_abc/serp.html.gz"))).toBeDefined();
     expect(puts.find((p) => p.key.includes("meta.json"))).toBeDefined();

@@ -59,6 +59,7 @@ export class FixtureLandingInspector implements LandingInspector {
         fetchedAt: new Date().toISOString(),
         matches: [],
         error: "no landing fixture recorded",
+        adMetaUrl: null,
       };
     }
     const chainUrls = recorded.hops.map((h) => h.url);
@@ -73,6 +74,7 @@ export class FixtureLandingInspector implements LandingInspector {
       fetchedAt: new Date().toISOString(),
       matches: matchSignatures(this.signatures, { urls: chainUrls, body: recorded.body ?? null }),
       error: null,
+      adMetaUrl: null,
     };
   }
 }

@@ -65,6 +65,8 @@ networks:
 
   - network: admitad
     domains: [admitad.com, ads.admitad.com]
+    # affiliates name their campaigns after the network ("... Admitad (lmc)" in utm_campaign)
+    valuePatterns: ["admitad"]
 
   - network: amazon-associates
     params:

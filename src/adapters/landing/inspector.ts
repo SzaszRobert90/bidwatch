@@ -102,6 +102,7 @@ export class HttpLandingInspector implements LandingInspector {
       fetchedAt: new Date().toISOString(),
       matches,
       error,
+      adMetaUrl: null,
     };
   }
 }

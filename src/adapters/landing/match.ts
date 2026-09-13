@@ -50,6 +50,18 @@ export function matchSignatures(db: SignatureDb, input: MatchInput): SignatureMa
           evidence: `query param ${p.name}=${value.slice(0, 64)}`,
         });
       }
+      for (const [name, value] of params) {
+        for (const pattern of net.valuePatterns) {
+          if (new RegExp(pattern, "i").test(value)) {
+            push({
+              network: net.network,
+              kind: "value",
+              source,
+              evidence: `param ${name}=${value.slice(0, 48)} matches /${pattern}/i`,
+            });
+          }
+        }
+      }
     }
 
     if (input.body !== null) {

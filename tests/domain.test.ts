@@ -27,6 +27,7 @@ function inspection(overrides: Partial<LandingInspection> = {}): LandingInspecti
     fetchedAt: "2026-09-09T00:00:00Z",
     matches: [],
     error: null,
+    adMetaUrl: null,
     ...overrides,
   };
 }
@@ -69,6 +70,15 @@ describe("classification", () => {
 
   it("unknown when inspection failed", () => {
     expect(classifyLanding(query, ad("coupons-deals.com"), inspection({ error: "timeout" }))).toBe("unknown");
+  });
+
+  it("ad_meta evidence counts even when the landing fetch was guarded", () => {
+    const guarded = inspection({
+      error: "bing interstitial",
+      hops: [{ url: "https://www.bing.com/aclick?u=x", status: 200 }],
+      matches: [{ network: "admitad", kind: "value", source: "ad_meta", evidence: "param utm_campaign=… Admitad … matches /admitad/i" }],
+    });
+    expect(classifyLanding(query, ad("coupons-deals.com"), guarded)).toBe("affiliate_violation");
   });
 });
 

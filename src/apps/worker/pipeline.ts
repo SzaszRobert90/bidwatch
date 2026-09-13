@@ -1,16 +1,35 @@
 import type { LandingInspector, ResultStore, SerpProvider } from "../../domain/ports.js";
-import type { LandingRow, ObservationRow, SerpQuery } from "../../domain/types.js";
+import type { LandingRow, ObservationRow, SerpQuery, SignatureDb } from "../../domain/types.js";
 import { classifyLanding, isSelfBid } from "../../domain/domain.js";
+import { resolveAclickTarget } from "../../domain/aclick.js";
+import { matchSignatures } from "../../adapters/landing/match.js";
 
 export interface PipelineDeps {
   provider: SerpProvider;
   inspector: LandingInspector;
   store: ResultStore;
+  signatures: SignatureDb;
   rawBucket: string;
   curatedBucket: string;
   maxLandings: number;
   politenessMs: number;
   log: (msg: string, ...rest: unknown[]) => void;
+}
+
+/**
+ * Bing click URLs embed the advertiser's destination in a base64url `u` param.
+ * Decode it, run the signature matcher over it, and merge the matches into the
+ * inspection with source "ad_meta" — attribution evidence with zero extra
+ * requests, immune to Bing's click guard.
+ */
+function attachAdMeta(signatures: SignatureDb, clickUrl: string, inspection: LandingRow["inspection"]): void {
+  const destination = resolveAclickTarget(clickUrl);
+  if (destination === null) return;
+  inspection.adMetaUrl = destination;
+  const matches = matchSignatures(signatures, { urls: [destination], body: null }).map(
+    (m) => ({ ...m, source: "ad_meta" as const }),
+  );
+  inspection.matches.push(...matches);
 }
 
 /**
@@ -58,8 +77,9 @@ export async function processJob(deps: PipelineDeps, job: SerpQuery): Promise<vo
     if (deps.politenessMs > 0 && landings.length > 0) {
       await new Promise((r) => setTimeout(r, deps.politenessMs));
     }
-    const inspection = await deps.inspector.inspect(ad.clickUrl);
-    const classification = classifyLanding(job, ad, inspection);
+      const inspection = await deps.inspector.inspect(ad.clickUrl);
+      attachAdMeta(deps.signatures, ad.clickUrl, inspection);
+      const classification = classifyLanding(job, ad, inspection);
     landings.push({
       runId: job.runId,
       brand: job.brand,
