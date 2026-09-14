@@ -1,4 +1,7 @@
 # bidwatch Grafana alert rules, provisioned as code (mounted into otel-lgtm).
+# Counter metrics export as DELTAS (every app is a short-lived batch process;
+# successive cumulative exports would read flat in Prometheus), so all windowed
+# queries use sum_over_time() — never increase()/rate().
 # NoDataState: Alerting is the deadman switch — a crashed or stopped service
 # stops exporting, its series go stale, and the "missing data" rule fires.
 # Notification delivery is a one-click contact-point choice in the UI
@@ -77,7 +80,7 @@ groups:
             model:
               datasource: { type: prometheus, uid: prometheus }
               editorMode: code
-              expr: sum(increase(bidwatch_jobs_total{outcome="error"}[24h]))
+              expr: sum(sum_over_time(bidwatch_jobs_total{outcome="error"}[24h]))
               instant: true
               intervalMs: 1000
               maxDataPoints: 43200
@@ -126,7 +129,7 @@ groups:
             model:
               datasource: { type: prometheus, uid: prometheus }
               editorMode: code
-              expr: sum by (job) (rate(bidwatch_heartbeat_total[10m]))
+              expr: sum by (job) (sum_over_time(bidwatch_heartbeat_total[10m]))
               instant: true
               intervalMs: 1000
               maxDataPoints: 43200
@@ -145,7 +148,7 @@ groups:
             datasourceUid: __expr__
             model:
               conditions:
-                - evaluator: { params: [0.005], type: lt }
+                - evaluator: { params: [3], type: lt }
                   operator: { type: and }
                   query: { params: [C] }
                   reducer: { params: [], type: lt }
@@ -175,7 +178,7 @@ groups:
             model:
               datasource: { type: prometheus, uid: prometheus }
               editorMode: code
-              expr: sum(increase(bidwatch_ads_total[24h]))
+              expr: sum(sum_over_time(bidwatch_ads_total[24h]))
               instant: true
               intervalMs: 1000
               maxDataPoints: 43200
@@ -224,7 +227,7 @@ groups:
             model:
               datasource: { type: prometheus, uid: prometheus }
               editorMode: code
-              expr: sum(increase(bidwatch_run_complete_total{app="report"}[24h]))
+              expr: sum(sum_over_time(bidwatch_run_complete_total{app="report"}[24h]))
               instant: true
               intervalMs: 1000
               maxDataPoints: 43200
