@@ -2,6 +2,7 @@ import { chromium, type BrowserContext, type Page } from "playwright";
 import { parseBingAds, detectNotice } from "./parse.js";
 import type { SerpProvider } from "../../domain/ports.js";
 import type { SerpFetch, SerpQuery } from "../../domain/types.js";
+import { withSpan } from "../../telemetry.js";
 
 export interface BingPlaywrightOptions {
   /** Persistent profile dir — cookies/history accumulate; ad serving needs a warm session. */
@@ -38,32 +39,35 @@ export class BingPlaywrightProvider implements SerpProvider {
   }
 
   async fetchSerp(query: SerpQuery): Promise<SerpFetch> {
-    const context = await this.ensureContext();
-    const page = await context.newPage();
-    const url = `https://www.bing.com/search?q=${encodeURIComponent(query.keyword)}`;
-    try {
-      const response = await page.goto(url, {
-        waitUntil: "domcontentloaded",
-        timeout: this.navigationTimeoutMs,
-      });
-      await this.acceptConsentIfPresent(page);
-      // A SERP with zero ads is a valid observation; this wait only gives
-      // client-side ad injection a chance to land.
-      await page.waitForSelector("li.b_ad", { timeout: this.adsWaitMs }).catch(() => {});
-      const html = await page.content();
-      const ads = parseBingAds(html);
-      return {
-        query,
-        fetchedAt: new Date().toISOString(),
-        httpStatus: response?.status() ?? 0,
-        finalUrl: page.url(),
-        html,
-        ads,
-        notice: detectNotice(html),
-      };
-    } finally {
-      await page.close();
-    }
+    return withSpan("serp.fetch", { provider: "playwright", brand: query.brand, keyword: query.keyword }, async (span) => {
+      const context = await this.ensureContext();
+      const page = await context.newPage();
+      const url = `https://www.bing.com/search?q=${encodeURIComponent(query.keyword)}`;
+      try {
+        const response = await page.goto(url, {
+          waitUntil: "domcontentloaded",
+          timeout: this.navigationTimeoutMs,
+        });
+        await this.acceptConsentIfPresent(page);
+        // A SERP with zero ads is a valid observation; this wait only gives
+        // client-side ad injection a chance to land.
+        await page.waitForSelector("li.b_ad", { timeout: this.adsWaitMs }).catch(() => {});
+        const html = await page.content();
+        const ads = parseBingAds(html);
+        span.setAttributes({ http_status: response?.status() ?? 0, ads: ads.length });
+        return {
+          query,
+          fetchedAt: new Date().toISOString(),
+          httpStatus: response?.status() ?? 0,
+          finalUrl: page.url(),
+          html,
+          ads,
+          notice: detectNotice(html),
+        };
+      } finally {
+        await page.close();
+      }
+    });
   }
 
   async dispose(): Promise<void> {

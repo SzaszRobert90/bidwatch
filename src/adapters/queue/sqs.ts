@@ -11,6 +11,7 @@ import {
 import { z } from "zod";
 import type { JobQueue, QueueMessage } from "../../domain/ports.js";
 import type { SerpQuery } from "../../domain/types.js";
+import { withSpan } from "../../telemetry.js";
 
 const jobSchema = z.object({
   runId: z.string(),
@@ -89,9 +90,11 @@ export class SqsJobQueue implements JobQueue {
   }
 
   async send(job: SerpQuery): Promise<void> {
-    await this.client.send(
-      new SendMessageCommand({ QueueUrl: this.mainQueueUrl, MessageBody: JSON.stringify(job) }),
-    );
+    await withSpan("queue.send", { brand: job.brand, keyword: job.keyword, run_id: job.runId }, async () => {
+      await this.client.send(
+        new SendMessageCommand({ QueueUrl: this.mainQueueUrl, MessageBody: JSON.stringify(job) }),
+      );
+    });
   }
 
   async receive(maxMessages: number, waitSeconds: number): Promise<QueueMessage[]> {
@@ -123,9 +126,18 @@ export class SqsJobQueue implements JobQueue {
   }
 
   async approximateCount(): Promise<number> {
+    return this.countOf(this.mainQueueUrl);
+  }
+
+  /** Visible depth of the dead-letter queue — anything above zero means messages exhausted their retries. */
+  async dlqCount(): Promise<number> {
+    return this.countOf(this.dlqUrl);
+  }
+
+  private async countOf(url: string): Promise<number> {
     const res = await this.client.send(
       new GetQueueAttributesCommand({
-        QueueUrl: this.mainQueueUrl,
+        QueueUrl: url,
         AttributeNames: ["ApproximateNumberOfMessages"],
       }),
     );

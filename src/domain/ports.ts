@@ -22,6 +22,8 @@ export interface JobQueue {
   receive(maxMessages: number, waitSeconds: number): Promise<QueueMessage[]>;
   remove(handle: string): Promise<void>;
   approximateCount(): Promise<number>;
+  /** Visible depth of the dead-letter queue; >0 means messages exhausted retries. */
+  dlqCount(): Promise<number>;
   queueUrl(): string;
 }
 

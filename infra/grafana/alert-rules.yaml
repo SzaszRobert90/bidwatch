@@ -1,0 +1,257 @@
+# bidwatch Grafana alert rules, provisioned as code (mounted into otel-lgtm).
+# NoDataState: Alerting is the deadman switch — a crashed or stopped service
+# stops exporting, its series go stale, and the "missing data" rule fires.
+# Notification delivery is a one-click contact-point choice in the UI
+# (Alerting -> Contact points) — see README "Observability".
+apiVersion: 1
+
+groups:
+  - orgId: 1
+    name: bidwatch
+    folder: bidwatch
+    interval: 1m
+    rules:
+      - uid: bidwatch-dlq-nonempty
+        title: 'DLQ non-empty — jobs exhausted retries'
+        condition: D
+        for: 2m
+        noDataState: OK
+        execErrState: Error
+        annotations:
+          summary: 'The bidwatch dead-letter queue holds messages — jobs failed 3x and were parked. Inspect the failed jobs (job.process error traces in Grafana Explore) before flushing.'
+        labels:
+          severity: warning
+        data:
+          - refId: A
+            relativeTimeRange: { from: 600, to: 0 }
+            datasourceUid: prometheus
+            model:
+              datasource: { type: prometheus, uid: prometheus }
+              editorMode: code
+              expr: max(bidwatch_dlq_depth)
+              instant: true
+              intervalMs: 1000
+              maxDataPoints: 43200
+              refId: A
+          - refId: C
+            datasourceUid: __expr__
+            model:
+              datasource: { type: __expr__, uid: __expr__ }
+              expression: A
+              intervalMs: 1000
+              maxDataPoints: 43200
+              reducer: last
+              refId: C
+              type: reduce
+          - refId: D
+            datasourceUid: __expr__
+            model:
+              conditions:
+                - evaluator: { params: [0], type: gt }
+                  operator: { type: and }
+                  query: { params: [C] }
+                  reducer: { params: [], type: gt }
+                  type: query
+              datasource: { type: __expr__, uid: __expr__ }
+              expression: C
+              intervalMs: 1000
+              maxDataPoints: 43200
+              refId: D
+              type: threshold
+        isPaused: false
+
+      - uid: bidwatch-job-errors
+        title: 'Job errors in the last 24h'
+        condition: D
+        for: 0m
+        noDataState: OK
+        execErrState: Error
+        annotations:
+          summary: 'At least one bidwatch queue job ended in error in the last 24h (bidwatch.jobs{outcome="error"}). The job was left on the queue for retry; after 3 attempts it lands in the DLQ.'
+        labels:
+          severity: critical
+        data:
+          - refId: A
+            relativeTimeRange: { from: 3600, to: 0 }
+            datasourceUid: prometheus
+            model:
+              datasource: { type: prometheus, uid: prometheus }
+              editorMode: code
+              expr: sum(increase(bidwatch_jobs_total{outcome="error"}[24h]))
+              instant: true
+              intervalMs: 1000
+              maxDataPoints: 43200
+              refId: A
+          - refId: C
+            datasourceUid: __expr__
+            model:
+              datasource: { type: __expr__, uid: __expr__ }
+              expression: A
+              intervalMs: 1000
+              maxDataPoints: 43200
+              reducer: last
+              refId: C
+              type: reduce
+          - refId: D
+            datasourceUid: __expr__
+            model:
+              conditions:
+                - evaluator: { params: [0], type: gt }
+                  operator: { type: and }
+                  query: { params: [C] }
+                  reducer: { params: [], type: gt }
+                  type: query
+              datasource: { type: __expr__, uid: __expr__ }
+              expression: C
+              intervalMs: 1000
+              maxDataPoints: 43200
+              refId: D
+              type: threshold
+        isPaused: false
+
+      - uid: bidwatch-heartbeat-missing
+        title: 'Worker/feeder heartbeat missing or stalled'
+        condition: D
+        for: 5m
+        noDataState: Alerting
+        execErrState: Error
+        annotations:
+          summary: 'A bidwatch daemon (worker or feeder) stopped heartbeating — the container crashed, was OOM-killed, or its event loop is stuck. This rule also fires on plain missing data (NoDataState=Alerting).'
+        labels:
+          severity: critical
+        data:
+          - refId: A
+            relativeTimeRange: { from: 1200, to: 0 }
+            datasourceUid: prometheus
+            model:
+              datasource: { type: prometheus, uid: prometheus }
+              editorMode: code
+              expr: sum by (job) (rate(bidwatch_heartbeat_total[10m]))
+              instant: true
+              intervalMs: 1000
+              maxDataPoints: 43200
+              refId: A
+          - refId: C
+            datasourceUid: __expr__
+            model:
+              datasource: { type: __expr__, uid: __expr__ }
+              expression: A
+              intervalMs: 1000
+              maxDataPoints: 43200
+              reducer: last
+              refId: C
+              type: reduce
+          - refId: D
+            datasourceUid: __expr__
+            model:
+              conditions:
+                - evaluator: { params: [0.005], type: lt }
+                  operator: { type: and }
+                  query: { params: [C] }
+                  reducer: { params: [], type: lt }
+                  type: query
+              datasource: { type: __expr__, uid: __expr__ }
+              expression: C
+              intervalMs: 1000
+              maxDataPoints: 43200
+              refId: D
+              type: threshold
+        isPaused: false
+
+      - uid: bidwatch-zero-ads
+        title: 'Zero ads observed in 24h — scraping may be silently broken'
+        condition: D
+        for: 0m
+        noDataState: Alerting
+        execErrState: Error
+        annotations:
+          summary: 'The worker ran but observed no Bing ads for a full day (bidwatch.ads). Typical causes: Bing serving the no-ads variant (headless/proxy/session issues) or a parser drift after a Bing markup change. Check serp.fetch traces and the raw SERP HTML in the raw bucket.'
+        labels:
+          severity: critical
+        data:
+          - refId: A
+            relativeTimeRange: { from: 3600, to: 0 }
+            datasourceUid: prometheus
+            model:
+              datasource: { type: prometheus, uid: prometheus }
+              editorMode: code
+              expr: sum(increase(bidwatch_ads_total[24h]))
+              instant: true
+              intervalMs: 1000
+              maxDataPoints: 43200
+              refId: A
+          - refId: C
+            datasourceUid: __expr__
+            model:
+              datasource: { type: __expr__, uid: __expr__ }
+              expression: A
+              intervalMs: 1000
+              maxDataPoints: 43200
+              reducer: last
+              refId: C
+              type: reduce
+          - refId: D
+            datasourceUid: __expr__
+            model:
+              conditions:
+                - evaluator: { params: [0.5], type: lt }
+                  operator: { type: and }
+                  query: { params: [C] }
+                  reducer: { params: [], type: lt }
+                  type: query
+              datasource: { type: __expr__, uid: __expr__ }
+              expression: C
+              intervalMs: 1000
+              maxDataPoints: 43200
+              refId: D
+              type: threshold
+        isPaused: false
+
+      - uid: bidwatch-report-stale
+        title: 'No successful report in 24h'
+        condition: D
+        for: 0m
+        noDataState: Alerting
+        execErrState: Error
+        annotations:
+          summary: 'The transform+report loop has not completed in 24h (bidwatch.run.complete{app="report"}). The evidence packs and prospect CSV are stale — check the report container logs.'
+        labels:
+          severity: warning
+        data:
+          - refId: A
+            relativeTimeRange: { from: 3600, to: 0 }
+            datasourceUid: prometheus
+            model:
+              datasource: { type: prometheus, uid: prometheus }
+              editorMode: code
+              expr: sum(increase(bidwatch_run_complete_total{app="report"}[24h]))
+              instant: true
+              intervalMs: 1000
+              maxDataPoints: 43200
+              refId: A
+          - refId: C
+            datasourceUid: __expr__
+            model:
+              datasource: { type: __expr__, uid: __expr__ }
+              expression: A
+              intervalMs: 1000
+              maxDataPoints: 43200
+              reducer: last
+              refId: C
+              type: reduce
+          - refId: D
+            datasourceUid: __expr__
+            model:
+              conditions:
+                - evaluator: { params: [0.5], type: lt }
+                  operator: { type: and }
+                  query: { params: [C] }
+                  reducer: { params: [], type: lt }
+                  type: query
+              datasource: { type: __expr__, uid: __expr__ }
+              expression: C
+              intervalMs: 1000
+              maxDataPoints: 43200
+              refId: D
+              type: threshold
+        isPaused: false

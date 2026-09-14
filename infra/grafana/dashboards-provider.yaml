@@ -1,0 +1,16 @@
+# Grafana dashboards provider for bidwatch — mounted into the otel-lgtm image
+# next to its own per-file providers (same pattern: one provider entry per
+# dashboard JSON). The path is the container location compose mounts our JSON.
+apiVersion: 1
+
+providers:
+  - name: "bidwatch"
+    orgId: 1
+    folder: "bidwatch"
+    type: file
+    disableDeletion: false
+    updateIntervalSeconds: 30
+    allowUiUpdates: true
+    options:
+      path: /otel-lgtm/bidwatch-overview.json
+      foldersFromFilesStructure: false

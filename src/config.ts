@@ -48,6 +48,8 @@ const envSchema = z.object({
   /** DuckDB/httpfs settings for the report app. */
   BIDWATCH_S3_ENDPOINT: z.string().default(""),
   BIDWATCH_S3_USE_SSL: z.string().default("true"),
+  /** OTLP collector base URL (compose: http://otel-lgtm:4318; host e2e: http://localhost:4318). Empty = telemetry off. */
+  OTEL_EXPORTER_OTLP_ENDPOINT: z.string().default(""),
 });
 
 export type Env = z.infer<typeof envSchema>;

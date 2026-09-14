@@ -1,6 +1,7 @@
 import { gzipSync } from "node:zlib";
 import { PutObjectCommand, S3Client, type S3ClientConfig } from "@aws-sdk/client-s3";
 import type { ResultStore } from "../../domain/ports.js";
+import { withSpan } from "../../telemetry.js";
 
 export interface S3StoreOptions {
   endpoint?: string;
@@ -23,8 +24,14 @@ export class S3ResultStore implements ResultStore {
   }
 
   async putObject(key: string, body: Uint8Array, contentType: string): Promise<void> {
-    await this.client.send(
-      new PutObjectCommand({ Bucket: this.bucketOf(key), Key: this.keyOf(key), Body: body, ContentType: contentType }),
+    await withSpan(
+      "store.put",
+      { bucket: this.bucketOf(key), key: this.keyOf(key), bytes: body.byteLength, content_type: contentType },
+      async () => {
+        await this.client.send(
+          new PutObjectCommand({ Bucket: this.bucketOf(key), Key: this.keyOf(key), Body: body, ContentType: contentType }),
+        );
+      },
     );
   }
 

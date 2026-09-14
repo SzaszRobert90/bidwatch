@@ -34,3 +34,4 @@ jobs:
           mirror quay.io/minio/minio:latest          ghcr.io/szaszrobert90/minio:latest
           mirror quay.io/minio/mc:latest             ghcr.io/szaszrobert90/mc:latest
           mirror softwaremill/elasticmq-native:1.7.1 ghcr.io/szaszrobert90/elasticmq-native:1.7.1
+          mirror grafana/otel-lgtm:latest            ghcr.io/szaszrobert90/otel-lgtm:latest

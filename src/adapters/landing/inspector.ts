@@ -1,9 +1,11 @@
 import { fetch as uFetch, ProxyAgent, type Dispatcher } from "undici";
+import { SpanStatusCode } from "@opentelemetry/api";
 import type { LandingInspector } from "../../domain/ports.js";
 import type { LandingInspection } from "../../domain/types.js";
 import { domainOf } from "../../domain/domain.js";
 import { matchSignatures } from "./match.js";
 import type { SignatureDb } from "../../domain/types.js";
+import { tracer } from "../../telemetry.js";
 
 export type LandingTransport = (
   url: string,
@@ -58,32 +60,45 @@ export class HttpLandingInspector implements LandingInspector {
 
     try {
       for (let hop = 0; hop <= this.maxHops; hop++) {
-        const res = await this.transport(current, {
-          redirect: "manual",
-          signal: AbortSignal.timeout(this.timeoutMs),
-        });
-        status = res.status;
-        hops.push({ url: current, status });
+        // One span per hop: the redirect chain IS the evidence, and per-hop
+        // latency/status/errors are the first thing to check when a landing
+        // looks broken. Errors stay data (captured below), never exceptions.
+        const hopSpan = tracer().startSpan("landing.hop", { attributes: { hop, url: current } });
+        try {
+          const res = await this.transport(current, {
+            redirect: "manual",
+            signal: AbortSignal.timeout(this.timeoutMs),
+          });
+          status = res.status;
+          hops.push({ url: current, status });
+          hopSpan.setAttribute("status", status);
 
-        const location = res.headers.get("location");
-        if (res.status >= 300 && res.status < 400 && location) {
-          current = new URL(location, current).toString();
-          urls.push(current);
-          continue;
+          const location = res.headers.get("location");
+          if (res.status >= 300 && res.status < 400 && location) {
+            current = new URL(location, current).toString();
+            urls.push(current);
+            continue;
+          }
+
+          let body = await res.text();
+          if (body.length > this.maxBodyChars) body = body.slice(0, this.maxBodyChars);
+          finalBody = body;
+
+          const metaRefresh = /http-equiv=["']?refresh["']?[^>]*content=["']?\d+;\s*url=([^"'>\s]+)/i.exec(body);
+          const refreshTarget = metaRefresh?.[1];
+          if (refreshTarget !== undefined && hop < this.maxHops) {
+            current = new URL(refreshTarget, current).toString();
+            urls.push(current);
+            continue;
+          }
+          break;
+        } catch (err) {
+          hopSpan.recordException(err as Error);
+          hopSpan.setStatus({ code: SpanStatusCode.ERROR });
+          throw err;
+        } finally {
+          hopSpan.end();
         }
-
-        let body = await res.text();
-        if (body.length > this.maxBodyChars) body = body.slice(0, this.maxBodyChars);
-        finalBody = body;
-
-        const metaRefresh = /http-equiv=["']?refresh["']?[^>]*content=["']?\d+;\s*url=([^"'>\s]+)/i.exec(body);
-        const refreshTarget = metaRefresh?.[1];
-        if (refreshTarget !== undefined && hop < this.maxHops) {
-          current = new URL(refreshTarget, current).toString();
-          urls.push(current);
-          continue;
-        }
-        break;
       }
     } catch (err) {
       error = err instanceof Error ? err.message : String(err);

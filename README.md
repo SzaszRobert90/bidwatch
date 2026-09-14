@@ -54,7 +54,7 @@ src/apps/         worker, feeder, transform + report (DuckDB), prospect-builder 
 config/           brands.yaml (watched brands), signatures.yaml (affiliate networks)
 fixtures/         recorded SERP HTML + landing chains — dev/CI replays, never hits Bing
 sql/              bronze → silver → gold transform, one statement per numbered file
-infra/            compose.yml, elasticmq.conf, Dockerfile (chrome + xvfb)
+infra/            compose.yml, elasticmq.conf, grafana provisioning, Dockerfile (chrome + xvfb)
 scripts/          probes, fixture recording, e2e
 ```
 
@@ -75,6 +75,39 @@ npm run report
 npx tsx scripts/record-fixtures.ts   # refresh live fixtures (opens Chrome)
 ```
 
+## Observability
+
+OpenTelemetry traces + metrics + logs, viewed in Grafana. The backend is one
+container: `grafana/otel-lgtm` (Grafana + Tempo + Loki + Prometheus, OTLP on
+4318). Telemetry is **off unless `OTEL_EXPORTER_OTLP_ENDPOINT` is set** —
+dev/CI/tests never emit; prod compose prewires it in `x-worker-env`.
+
+```bash
+bash scripts/e2e-local.sh            # RUNS=5 for five replay rounds
+```
+
+- Dashboard: `http://localhost:3000` → Dashboards → folder `bidwatch` → *bidwatch overview*
+- Explore: traces by service (`bidwatch-worker|feeder|transform|report`), metrics (Prometheus, prefix `bidwatch_`), logs (Loki, `{service_name=~"bidwatch-.*"}`)
+- Alerts: Alerting → Alert rules → folder `bidwatch` — provisioned as code in `infra/grafana/`
+
+Emitted signals: one `job.process` trace per queue job (`serp.fetch` →
+`landing.inspect` → `landing.hop` per redirect, `store.put`, `queue.send`),
+`feed.run` / `transform.run` (span per SQL file) / `report.run` roots;
+counters `bidwatch.jobs` (outcome ok|error), `.violations`, `.ads`,
+`.run.complete`, `.heartbeat` (60s, daemon modes) plus `.queue.depth` /
+`.dlq.depth` gauges and `.serp.duration` / `.landing.hops` histograms;
+structured pino logs on stdout and over OTLP.
+
+Alert rules (all in `infra/grafana/alert-rules.yaml`): DLQ non-empty, job
+errors in 24h, **heartbeat missing** (uses `NoDataState: Alerting` — fires
+when a container crashes or stops exporting entirely), **zero ads in 24h**
+(scraping silently broken: page loads, Bing serves nothing), and no
+successful report in 24h. Delivering them is a one-time UI choice
+(Alerting → Contact points → email/Slack/webhook/ntfy).
+
+Hardening: the lgtm image ships anonymous admin — fine on a home LAN; set
+`GF_AUTH_ANONYMOUS_ENABLED=false` in the compose service to require login.
+
 ## Deployment
 
 GitHub pushes artifacts; the homelab only pulls. Nothing builds on the server.
@@ -83,7 +116,7 @@ GitHub pushes artifacts; the homelab only pulls. Nothing builds on the server.
 push to main ───▶ CI: test → integration → docker
                       └────────▶ publish  ghcr.io/szaszrobert90/bidwatch-worker:dev
 dispatch / tag v* ─▶ release.yml ─▶ publish …:prod          (the prod "gate")
-mirror-images.yml ─▶ minio/mc/elasticmq copied into our ghcr (upstream-proof)
+mirror-images.yml ─▶ minio/mc/elasticmq/otel-lgtm copied into our ghcr (upstream-proof)
 ```
 
 The homelab LXC runs `bidwatch-deploy.timer` (every 10 min, `infra/deploy.sh`):

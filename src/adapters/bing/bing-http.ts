@@ -2,6 +2,7 @@ import { fetch as uFetch, ProxyAgent } from "undici";
 import { parseBingAds, detectNotice } from "./parse.js";
 import type { SerpProvider } from "../../domain/ports.js";
 import type { SerpFetch, SerpQuery } from "../../domain/types.js";
+import { withSpan } from "../../telemetry.js";
 
 const DESKTOP_UA =
   "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36";
@@ -26,26 +27,30 @@ export class BingHttpProvider implements SerpProvider {
   }
 
   async fetchSerp(query: SerpQuery): Promise<SerpFetch> {
-    const url = `https://www.bing.com/search?q=${encodeURIComponent(query.keyword)}&count=20&mkt=en-${query.geo.toUpperCase()}&setlang=en&cc=${query.geo.toUpperCase()}`;
-    const res = await uFetch(url, {
-      headers: {
-        "user-agent": DESKTOP_UA,
-        accept: "text/html,application/xhtml+xml",
-        "accept-language": `en-${query.geo.toUpperCase()},en;q=0.9`,
-      },
-      dispatcher: this.nextAgent(),
-      signal: AbortSignal.timeout(this.timeoutMs),
+    return withSpan("serp.fetch", { provider: "http", brand: query.brand, keyword: query.keyword }, async (span) => {
+      const url = `https://www.bing.com/search?q=${encodeURIComponent(query.keyword)}&count=20&mkt=en-${query.geo.toUpperCase()}&setlang=en&cc=${query.geo.toUpperCase()}`;
+      const res = await uFetch(url, {
+        headers: {
+          "user-agent": DESKTOP_UA,
+          accept: "text/html,application/xhtml+xml",
+          "accept-language": `en-${query.geo.toUpperCase()},en;q=0.9`,
+        },
+        dispatcher: this.nextAgent(),
+        signal: AbortSignal.timeout(this.timeoutMs),
+      });
+      const html = await res.text();
+      const ads = res.status === 200 ? parseBingAds(html) : [];
+      span.setAttributes({ http_status: res.status, ads: ads.length });
+      return {
+        query,
+        fetchedAt: new Date().toISOString(),
+        httpStatus: res.status,
+        finalUrl: res.url || url,
+        html,
+        ads,
+        notice: detectNotice(html),
+      };
     });
-    const html = await res.text();
-    return {
-      query,
-      fetchedAt: new Date().toISOString(),
-      httpStatus: res.status,
-      finalUrl: res.url || url,
-      html,
-      ads: res.status === 200 ? parseBingAds(html) : [],
-      notice: detectNotice(html),
-    };
   }
 
   private nextAgent(): ProxyAgent | undefined {

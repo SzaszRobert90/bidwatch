@@ -1,0 +1,148 @@
+{
+  "uid": "bidwatch-overview",
+  "title": "bidwatch overview",
+  "tags": ["bidwatch"],
+  "timezone": "browser",
+  "schemaVersion": 39,
+  "version": 1,
+  "refresh": "30s",
+  "time": { "from": "now-24h", "to": "now" },
+  "templating": { "list": [] },
+  "panels": [
+    {
+      "id": 1,
+      "title": "Jobs (24h) by outcome",
+      "description": "Counters from bidwatch.jobs — outcome=error rising means queue jobs failed and went back for retry/redrive.",
+      "type": "stat",
+      "gridPos": { "h": 5, "w": 6, "x": 0, "y": 0 },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "sum(increase(bidwatch_jobs_total{outcome=\"ok\"}[24h]))",
+          "legendFormat": "ok"
+        },
+        {
+          "refId": "B",
+          "expr": "sum(increase(bidwatch_jobs_total{outcome=\"error\"}[24h]))",
+          "legendFormat": "error"
+        }
+      ],
+      "options": {
+        "reduceOptions": { "calcs": ["lastNotNull"] },
+        "colorMode": "value",
+        "graphMode": "area",
+        "textMode": "value_and_name"
+      },
+      "fieldConfig": {
+        "defaults": { "thresholds": { "mode": "absolute", "steps": [ { "color": "green", "value": null }, { "color": "red", "value": 1 } ] } },
+        "overrides": [
+          {
+            "matcher": { "id": "byName", "options": "ok" },
+            "properties": [ { "id": "thresholds", "value": { "mode": "absolute", "steps": [ { "color": "green", "value": null } ] } } ]
+          }
+        ]
+      }
+    },
+    {
+      "id": 2,
+      "title": "Affiliate violations (24h)",
+      "description": "Sum of bidwatch.violations — landings classified as affiliate_violation.",
+      "type": "stat",
+      "gridPos": { "h": 5, "w": 6, "x": 6, "y": 0 },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "sum(increase(bidwatch_violations_total[24h]))",
+          "legendFormat": "violations"
+        }
+      ],
+      "options": { "reduceOptions": { "calcs": ["lastNotNull"] }, "colorMode": "value", "graphMode": "area" },
+      "fieldConfig": { "defaults": { "thresholds": { "mode": "absolute", "steps": [ { "color": "blue", "value": null } ] } }, "overrides": [] }
+    },
+    {
+      "id": 3,
+      "title": "Queue depth",
+      "description": "bidwatch.queue.depth — messages waiting; a flat non-zero line means the worker is not draining.",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 0 },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "targets": [
+        { "refId": "A", "expr": "sum by (job) (bidwatch_queue_depth)", "legendFormat": "{{job}} main" },
+        { "refId": "B", "expr": "sum by (job) (bidwatch_dlq_depth)", "legendFormat": "{{job}} DLQ" }
+      ],
+      "fieldConfig": { "defaults": { "custom": { "fillOpacity": 10, "lineWidth": 2 } }, "overrides": [] },
+      "options": { "legend": { "displayMode": "list", "showLegend": true }, "tooltip": { "mode": "multi" } }
+    },
+    {
+      "id": 4,
+      "title": "SERP fetch duration p95 (s)",
+      "description": "bidwatch.serp.duration histogram — spike = Bing slow or Playwright struggling.",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 5 },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "histogram_quantile(0.95, sum by (le) (rate(bidwatch_serp_duration_seconds_bucket[10m])))",
+          "legendFormat": "p95"
+        }
+      ],
+      "fieldConfig": { "defaults": { "unit": "s", "custom": { "fillOpacity": 10, "lineWidth": 2 } }, "overrides": [] },
+      "options": { "legend": { "displayMode": "list", "showLegend": true }, "tooltip": { "mode": "multi" } }
+    },
+    {
+      "id": 5,
+      "title": "Landing hops & errors",
+      "description": "bidwatch.landing.hops p95 and bidwatch.landing.errors — redirect chains shortening or errors rising means landing evidence is degrading.",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 8 },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "histogram_quantile(0.95, sum by (le) (rate(bidwatch_landing_hops_bucket[10m])))",
+          "legendFormat": "hops p95"
+        },
+        {
+          "refId": "B",
+          "expr": "sum(increase(bidwatch_landing_errors_total[10m]))",
+          "legendFormat": "errors (10m)"
+        }
+      ],
+      "fieldConfig": { "defaults": { "custom": { "fillOpacity": 10, "lineWidth": 2 } }, "overrides": [] },
+      "options": { "legend": { "displayMode": "list", "showLegend": true }, "tooltip": { "mode": "multi" } }
+    },
+    {
+      "id": 6,
+      "title": "Ads observed & runs completed (1h)",
+      "description": "bidwatch.ads per SERP scrape and bidwatch.run.complete per app — flat ads with rising runs = scraping works but sees nothing.",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 13 },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "targets": [
+        { "refId": "A", "expr": "sum(increase(bidwatch_ads_total[1h]))", "legendFormat": "ads (1h)" },
+        { "refId": "B", "expr": "sum by (app) (increase(bidwatch_run_complete_total[1h]))", "legendFormat": "{{app}} runs (1h)" }
+      ],
+      "fieldConfig": { "defaults": { "custom": { "fillOpacity": 10, "lineWidth": 2 } }, "overrides": [] },
+      "options": { "legend": { "displayMode": "list", "showLegend": true }, "tooltip": { "mode": "multi" } }
+    },
+    {
+      "id": 7,
+      "title": "Logs (all bidwatch services)",
+      "description": "Structured pino logs exported over OTLP — the narrative behind the counters.",
+      "type": "logs",
+      "gridPos": { "h": 9, "w": 24, "x": 0, "y": 21 },
+      "datasource": { "type": "loki", "uid": "loki" },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "{service_name=~\"bidwatch-.*\"}",
+          "queryType": "range"
+        }
+      ],
+      "options": { "showTime": true, "showLabels": true, "sortOrder": "Descending" }
+    }
+  ]
+}

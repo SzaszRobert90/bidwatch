@@ -2,6 +2,7 @@ import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import type { DuckDBConnection } from "@duckdb/node-api";
+import { withSpan } from "../telemetry.js";
 
 /** Where the SQL reads bronze from and where gold is exported to. Either may be an `s3://` bucket root or a local directory (tests). */
 export interface TransformSources {
@@ -56,7 +57,9 @@ export async function runTransform(conn: DuckDBConnection, sources: TransformSou
   for (const file of files) {
     let sql = readFileSync(join(dir, file), "utf8");
     for (const [placeholder, value] of values) sql = sql.replaceAll(placeholder, value);
-    await conn.run(sql);
+    await withSpan("transform.sql", { file, bytes: sql.length }, async () => {
+      await conn.run(sql);
+    });
   }
   return files;
 }

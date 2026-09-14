@@ -10,6 +10,7 @@ import { loadSignatures } from "./config.js";
 import type { Env } from "./config.js";
 import type { JobQueue, LandingInspector, ResultStore, SerpProvider } from "./domain/ports.js";
 import type { SignatureDb } from "./domain/types.js";
+import { telemetryEnabled } from "./telemetry.js";
 import pino from "pino";
 
 export interface Wiring {
@@ -21,8 +22,22 @@ export interface Wiring {
   log: pino.Logger;
 }
 
+/**
+ * The one place loggers are built: stdout always, plus the OTLP log bridge
+ * when telemetry is on (the transport re-reads OTEL_* env inside its worker
+ * thread). Every app imports this — no raw console.log anywhere.
+ */
+export function makeLogger(): pino.Logger {
+  const level = process.env.BIDWATCH_LOG_LEVEL ?? "info";
+  const targets: pino.TransportSingleOptions[] = [
+    { target: "pino/file", options: { destination: 1 } },
+  ];
+  if (telemetryEnabled()) targets.push({ target: "pino-opentelemetry-transport" });
+  return pino({ level }, pino.transport({ targets }));
+}
+
 export function wire(env: Env): Wiring {
-  const log = pino({ level: process.env.BIDWATCH_LOG_LEVEL ?? "info" });
+  const log = makeLogger();
   const signatures = loadSignatures(env);
 
   const provider: SerpProvider =

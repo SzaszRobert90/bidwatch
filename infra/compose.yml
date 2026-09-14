@@ -14,6 +14,9 @@ x-worker-env: &worker-env
   BIDWATCH_RAW_BUCKET: bidwatch-raw
   BIDWATCH_CURATED_BUCKET: bidwatch-curated
   BIDWATCH_REPORTS_BUCKET: bidwatch-reports
+  # OTel export to the in-stack LGTM container (Grafana/Tempo/Loki/Prometheus).
+  # The exporters retry while it restarts — apps never fail on telemetry.
+  OTEL_EXPORTER_OTLP_ENDPOINT: http://otel-lgtm:4318
 
 services:
   minio:
@@ -49,6 +52,22 @@ services:
     image: ghcr.io/szaszrobert90/elasticmq-native:1.7.1
     ports: ["9324:9324"]
     volumes: ["./elasticmq.conf:/opt/elasticmq.conf:ro"]
+
+  # All-in-one observability backend: Grafana + Tempo (traces) + Loki (logs) +
+  # Prometheus (metrics), accepting OTLP on 4317/4318. UI on :3000 (the image
+  # ships anonymous admin — fine on a home LAN; see README for hardening).
+  # Provisioning rides in as individual file mounts under the image's grafana
+  # homepath so its own datasource/dashboard definitions stay intact.
+  otel-lgtm:
+    image: ghcr.io/szaszrobert90/otel-lgtm:latest
+    ports: ["3000:3000", "4318:4318"]
+    volumes:
+      - otel-lgtm-data:/data
+      - ./grafana/dashboards-provider.yaml:/otel-lgtm/grafana/conf/provisioning/dashboards/bidwatch-provider.yaml:ro
+      - ./grafana/bidwatch-overview.json:/otel-lgtm/bidwatch-overview.json:ro
+      - ./grafana/alert-rules.yaml:/otel-lgtm/grafana/conf/provisioning/alerting/bidwatch-rules.yaml:ro
+    restart: unless-stopped
+    profiles: ["prod"]
 
   feeder:
     image: ghcr.io/szaszrobert90/bidwatch-worker:${BIDWATCH_IMAGE_TAG:-dev}
@@ -120,3 +139,4 @@ services:
 volumes:
   minio-data:
   browser-profile:
+  otel-lgtm-data:
