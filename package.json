@@ -17,6 +17,7 @@
     "worker": "tsx src/apps/worker/main.ts",
     "feeder": "tsx src/apps/feeder/main.ts",
     "report": "tsx src/apps/report/main.ts",
+    "transform": "tsx src/apps/transform/main.ts",
     "prospects": "tsx src/apps/prospect-builder/main.ts"
   },
   "dependencies": {

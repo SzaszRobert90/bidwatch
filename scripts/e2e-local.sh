@@ -29,6 +29,9 @@ npx tsx src/apps/feeder/main.ts --once
 echo "== worker (fixture)"
 npx tsx src/apps/worker/main.ts --once
 
+echo "== transform (bronze -> silver -> gold)"
+npx tsx src/apps/transform/main.ts
+
 echo "== report"
 npx tsx src/apps/report/main.ts
 

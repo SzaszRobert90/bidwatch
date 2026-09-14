@@ -1,0 +1,3 @@
+COPY gold_anomalies
+TO '__CURATED_LAKE__/gold/anomalies'
+(FORMAT PARQUET, PARTITION_BY (dt), OVERWRITE_OR_IGNORE);

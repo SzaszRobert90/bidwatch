@@ -16,9 +16,19 @@ an environment change, not a rewrite. Design doc:
 feeder (cron) ─▶ queue ─▶ worker ─▶ SerpProvider (Bing, real Chrome)
                                     ├─▶ LandingInspector (redirect chain)
                                     ├─▶ signature DB match (params/domains/disclosure)
-                                    └─▶ S3: raw/ + curated/ JSONL
-report app (DuckDB over the lake) ─▶ per-brand evidence packs + prospect ranking
+                                    └─▶ S3: raw/ + curated/ JSONL      ← bronze
+transform (DuckDB SQL, sql/*.sql) ─▶ typed silver tables + anomaly detection
+                                    ─▶ gold Parquet (daily/anomalies/evidence)
+report app (DuckDB over gold) ─▶ per-brand evidence packs + prospect ranking
 ```
+
+The transform (`sql/`, run by `npm run transform`) is a full idempotent
+recompute: bronze views over the lake → typed snake_case silver tables → gold
+day-partitioned Parquet in `bidwatch-curated/gold/`. Anomaly detection is pure
+SQL: disappearance (zero-ad or missed run after an active week), volume shift
+(≥2σ vs trailing 7d), new entrant (first-seen advertiser domain per keyword),
+and data-quality escalation. Silver is built from `meta.json`, which exists for
+every run — so a zero-ad day is a row with zeros, not a missing row.
 
 Classification: `self_bid` (brand's own domain — noise) · `affiliate_violation`
 (signature match → reportable) · `competitor_conquest` (third party, no
@@ -40,9 +50,10 @@ signature — competitive intel) · `unknown` (landing blocked).
 ```
 src/domain/       types + ports (SerpProvider, LandingInspector, JobQueue, ResultStore)
 src/adapters/     bing-playwright, bing-http, landing inspector, sqs, s3, fixtures
-src/apps/         worker, feeder, report (DuckDB), prospect-builder (v1.5 stub)
+src/apps/         worker, feeder, transform + report (DuckDB), prospect-builder (v1.5 stub)
 config/           brands.yaml (watched brands), signatures.yaml (affiliate networks)
 fixtures/         recorded SERP HTML + landing chains — dev/CI replays, never hits Bing
+sql/              bronze → silver → gold transform, one statement per numbered file
 infra/            compose.yml, elasticmq.conf, Dockerfile (chrome + xvfb)
 scripts/          probes, fixture recording, e2e
 ```
@@ -59,6 +70,7 @@ npm test                      # unit (no network)
 bash scripts/e2e-local.sh     # compose up minio+elasticmq, fixture run end to end
 npm run feeder -- --once      # feed live jobs (needs .env, see .env.example)
 npm run worker -- --once
+npm run transform             # bronze -> silver -> gold parquet (needs minio up)
 npm run report
 npx tsx scripts/record-fixtures.ts   # refresh live fixtures (opens Chrome)
 ```

@@ -1,0 +1,3 @@
+COPY gold_evidence
+TO '__CURATED_LAKE__/gold/evidence'
+(FORMAT PARQUET, PARTITION_BY (dt), OVERWRITE_OR_IGNORE);

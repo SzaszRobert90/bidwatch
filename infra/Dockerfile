@@ -16,6 +16,7 @@ COPY src ./src
 RUN npm run build && npm prune --omit=dev
 COPY config ./config
 COPY fixtures ./fixtures
+COPY sql ./sql
 
 ENV NODE_ENV=production
 CMD ["node", "dist/apps/worker/main.js"]

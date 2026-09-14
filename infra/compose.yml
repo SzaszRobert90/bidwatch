@@ -109,7 +109,9 @@ services:
 
   report:
     image: ghcr.io/szaszrobert90/bidwatch-worker:${BIDWATCH_IMAGE_TAG:-dev}
-    command: ["/bin/sh", "-c", "while true; do node dist/apps/report/main.js || true; sleep 21600; done"]
+    # transform (bronze->silver->gold) then report, every 6h; the || true keeps
+    # the loop alive if either fails, and report only runs after a good transform
+    command: ["/bin/sh", "-c", "while true; do node dist/apps/transform/main.js && node dist/apps/report/main.js || true; sleep 21600; done"]
     environment:
       <<: *worker-env
     restart: unless-stopped
