@@ -59,7 +59,11 @@ dqi_escalation AS (
     SELECT dt, brand, keyword, 'data_quality' AS kind, check_name AS entity, detail
     FROM silver_dqi
 )
-SELECT dt, brand, keyword, kind, entity, detail FROM disappearance
-UNION ALL SELECT dt, brand, keyword, kind, entity, detail FROM volume_shift
-UNION ALL SELECT dt, brand, keyword, kind, entity, detail FROM new_entrant
-UNION ALL SELECT dt, brand, keyword, kind, entity, detail FROM dqi_escalation;
+SELECT DISTINCT dt, brand, keyword, kind, entity, detail FROM (
+    SELECT dt, brand, keyword, kind, entity, detail FROM disappearance
+    UNION ALL SELECT dt, brand, keyword, kind, entity, detail FROM volume_shift
+    UNION ALL SELECT dt, brand, keyword, kind, entity, detail FROM new_entrant
+    UNION ALL SELECT dt, brand, keyword, kind, entity, detail FROM dqi_escalation
+);
+-- DISTINCT: the feeder can fire more than once a day, and the same first
+-- sighting then appears once per run; the anomaly event is per domain/day.
