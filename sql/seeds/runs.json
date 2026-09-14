@@ -1,0 +1,16 @@
+{
+  "query": {
+    "runId": "_seed",
+    "brand": "_seed",
+    "brandDomain": "seed.invalid",
+    "keyword": "_seed",
+    "geo": "us",
+    "engine": "bing",
+    "enqueuedAt": "1970-01-01T00:00:00.000Z"
+  },
+  "fetchedAt": "1970-01-01T00:00:00.000Z",
+  "finalUrl": "https://seed.invalid/search",
+  "notice": null,
+  "adCount": 0,
+  "dt": "1970-01-01"
+}

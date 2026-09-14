@@ -178,3 +178,36 @@ describe("transform (bronze -> silver -> gold)", () => {
     expect(String(ev[0]?.evidence)).toContain("domain regular.com/offer (ad_meta)");
   });
 });
+
+describe("transform on a fresh lake", () => {
+  it("tolerates an empty landings prefix via the seed fallback", async () => {
+    const root2 = mkdtempSync(path.join(tmpdir(), "bw-fresh-"));
+    const raw2 = path.join(root2, "raw").replaceAll("\\", "/");
+    const cur2 = path.join(root2, "curated").replaceAll("\\", "/");
+    try {
+      // runs + observations exist, but no landing was ever inspected
+      const runDir = path.join(root2, "raw", "raw", "engine=bing", "dt=2026-09-01", "run=run_fresh");
+      mkdirSync(runDir, { recursive: true });
+      writeFileSync(path.join(runDir, "meta.json"), meta("run_fresh", "2026-09-01", 1));
+      const obsDir = path.join(root2, "curated", "curated", "observations", "dt=2026-09-01");
+      mkdirSync(obsDir, { recursive: true });
+      writeFileSync(path.join(obsDir, "run_fresh.jsonl"), obs("run_fresh", "2026-09-01", 0, "regular.com", "unknown") + "\n");
+      for (const table of ["daily_brand_keyword", "anomalies", "evidence"]) {
+        mkdirSync(path.join(root2, "curated", "gold", table), { recursive: true });
+      }
+
+      const instance2 = await DuckDBInstance.create(":memory:");
+      const conn2 = await instance2.connect();
+      const files = await runTransform(conn2, { rawLake: raw2, curatedLake: cur2 });
+      expect(files.length).toBeGreaterThan(10);
+
+      const q = async (sql: string) => (await conn2.runAndReadAll(sql)).getRowObjectsJson();
+      expect(Number((await q("SELECT count(*) AS n FROM silver_landings"))[0]?.n)).toBe(0);
+      expect(Number((await q("SELECT count(*) AS n FROM silver_runs"))[0]?.n)).toBe(1);
+      const daily = await q(`SELECT * FROM read_parquet('${cur2}/gold/daily_brand_keyword/**/*.parquet', hive_partitioning=true)`);
+      expect(daily.length).toBe(1);
+    } finally {
+      rmSync(root2, { recursive: true, force: true });
+    }
+  });
+});
