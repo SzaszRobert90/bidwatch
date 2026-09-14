@@ -3,10 +3,11 @@ import { NodeSDK } from "@opentelemetry/sdk-node";
 import { OTLPTraceExporter } from "@opentelemetry/exporter-trace-otlp-http";
 import { OTLPMetricExporter } from "@opentelemetry/exporter-metrics-otlp-http";
 import { OTLPLogExporter } from "@opentelemetry/exporter-logs-otlp-http";
-import { PeriodicExportingMetricReader, AggregationTemporality } from "@opentelemetry/sdk-metrics";
+import { PeriodicExportingMetricReader } from "@opentelemetry/sdk-metrics";
 import { BatchSpanProcessor } from "@opentelemetry/sdk-trace-base";
 import { BatchLogRecordProcessor } from "@opentelemetry/sdk-logs";
 import { resourceFromAttributes } from "@opentelemetry/resources";
+import { randomUUID } from "node:crypto";
 
 /**
  * OpenTelemetry wiring: OTLP/HTTPS (or plain HTTP against a local collector)
@@ -41,15 +42,18 @@ export function startTelemetry(serviceName: string): Telemetry {
     resource: resourceFromAttributes({
       "service.name": serviceName,
       "deployment.environment": process.env.BIDWATCH_MODE ?? "live",
+      // Random per process: every run is its own series whose samples are that
+      // run's lifetime-cumulative counter totals. Dashboards/alerts therefore
+      // sum per-process finals with sum(max_over_time(metric[W])) — increase()
+      // is meaningless across single-sample series (and plain delta is
+      // rejected by Prometheus's OTLP receiver — both were tried and verified
+      // empirically; see scripts/probe-otel-temporality.ts).
+      "service.instance.id": randomUUID(),
     }),
     spanProcessors: [new BatchSpanProcessor(new OTLPTraceExporter({ url: `${endpoint}/v1/traces` }))],
     metricReader: new PeriodicExportingMetricReader({
       exporter: new OTLPMetricExporter({ url: `${endpoint}/v1/metrics` }),
       exportIntervalMillis: 60_000,
-      // Delta, not cumulative: every app here is short-lived (batch runs exit
-      // in seconds), and successive processes exporting cumulative counters
-      // would read as a flat series in Prometheus. Deltas add up across runs.
-      aggregationTemporalitySelector: () => AggregationTemporality.DELTA,
     }),
     logRecordProcessors: [
       new BatchLogRecordProcessor({ exporter: new OTLPLogExporter({ url: `${endpoint}/v1/logs` }) }),

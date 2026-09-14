@@ -34,12 +34,12 @@
       "targets": [
         {
           "refId": "A",
-          "expr": "sum(sum_over_time(bidwatch_jobs_total{outcome=\"ok\"}[24h]))",
+          "expr": "sum(max_over_time(bidwatch_jobs_total{outcome=\"ok\"}[24h]))",
           "legendFormat": "ok"
         },
         {
           "refId": "B",
-          "expr": "sum(sum_over_time(bidwatch_jobs_total{outcome=\"error\"}[24h]))",
+          "expr": "sum(max_over_time(bidwatch_jobs_total{outcome=\"error\"}[24h]))",
           "legendFormat": "error"
         }
       ],
@@ -111,7 +111,7 @@
       "targets": [
         {
           "refId": "A",
-          "expr": "sum(sum_over_time(bidwatch_violations_total[24h]))",
+          "expr": "sum(max_over_time(bidwatch_violations_total[24h]))",
           "legendFormat": "violations"
         }
       ],
@@ -203,7 +203,7 @@
       "targets": [
         {
           "refId": "A",
-          "expr": "histogram_quantile(0.95, sum by (le) (sum_over_time(bidwatch_serp_duration_seconds_bucket[10m])))",
+          "expr": "histogram_quantile(0.95, sum by (le) (max_over_time(bidwatch_serp_duration_seconds_bucket[1h])))",
           "legendFormat": "p95"
         }
       ],
@@ -245,12 +245,12 @@
       "targets": [
         {
           "refId": "A",
-          "expr": "histogram_quantile(0.95, sum by (le) (sum_over_time(bidwatch_landing_hops_bucket[10m])))",
+          "expr": "histogram_quantile(0.95, sum by (le) (max_over_time(bidwatch_landing_hops_bucket[1h])))",
           "legendFormat": "hops p95"
         },
         {
           "refId": "B",
-          "expr": "sum(sum_over_time(bidwatch_landing_errors_total[10m]))",
+          "expr": "sum(max_over_time(bidwatch_landing_errors_total[1h]))",
           "legendFormat": "errors (10m)"
         }
       ],
@@ -291,12 +291,12 @@
       "targets": [
         {
           "refId": "A",
-          "expr": "sum(sum_over_time(bidwatch_ads_total[1h]))",
+          "expr": "sum(max_over_time(bidwatch_ads_total[1h]))",
           "legendFormat": "ads (1h)"
         },
         {
           "refId": "B",
-          "expr": "sum by (app) (sum_over_time(bidwatch_run_complete_total[1h]))",
+          "expr": "sum by (app) (max_over_time(bidwatch_run_complete_total[1h]))",
           "legendFormat": "{{app}} runs (1h)"
         }
       ],
